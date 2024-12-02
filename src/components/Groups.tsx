@@ -37,9 +37,9 @@ export default function Groups() {
             <p className="display-6">{title}</p>
             <h3 className="card__title">Author: {author}</h3>
             <p className="card__content">{description}</p>
-            {/* <div className="card__state">
-            <span className="badge text-bg-success">Followed</span>
-          </div> */}
+            <div className="card__state">
+              <span className="badge text-bg-success">Followed</span>
+            </div>
             <div className="card__arrow">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
