@@ -1,14 +1,26 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import Stream from "./Stream";
 
+enum GroupType {
+  Public,
+  Private,
+}
 interface Stream {
   id: string;
   title: string;
   author: string;
   description: string;
+  type: GroupType;
 }
 
-const SearchPanel = ({ groupName }: { groupName: any }) => {
+const SearchPanel = ({
+  groupName,
+  groups,
+}: {
+  groupName: any;
+  groups: any;
+}) => {
   return (
     <div className="input-group mb-3" style={{ marginTop: "20px" }}>
       <input
@@ -39,11 +51,35 @@ const CreateGroupModal = ({
   groupTitle,
   groupDesc,
   groupType,
+  groups,
 }: {
   groupTitle: any;
   groupDesc: any;
   groupType: any;
+  groups: any;
 }) => {
+  function createGroup(
+    title: any,
+    author: any,
+    description: string,
+    type: any
+  ) {
+    if (title === "") return;
+    let newTask: Stream = {
+      id: crypto.randomUUID(),
+      title: title,
+      description: description,
+      author: author,
+      type: type,
+    };
+
+    groups[1]((tasks: any) => {
+      return tasks.concat(newTask);
+    });
+
+    groupTitle[1]("");
+  }
+
   return (
     <>
       <div
@@ -106,6 +142,14 @@ const CreateGroupModal = ({
                 type="button"
                 className="btn btn-success"
                 data-bs-dismiss="modal"
+                onClick={() =>
+                  createGroup(
+                    groupTitle[0],
+                    "John Doe",
+                    groupDesc[0],
+                    groupType
+                  )
+                }
               >
                 Create
               </button>
@@ -124,12 +168,14 @@ export default function Groups() {
       title: "Study With ME!",
       author: "John Doe",
       description: "Keep syncing your study",
+      type: GroupType.Private,
     },
     {
       id: crypto.randomUUID(),
       title: "Sync Study",
       author: "Maria",
       description: "Let's start with chemistry",
+      type: GroupType.Public,
     },
   ];
 
@@ -138,6 +184,7 @@ export default function Groups() {
   const [groupTitle, setGroupTitle] = useState("");
   const [groupDesc, setGroupDesc] = useState("");
   const [groupType, setGroupType] = useState("private");
+  const [groups, setGroups] = useState(streamList);
 
   function goToStream(streamID: string) {
     navigate(`/stream/${streamID}`);
@@ -145,41 +192,38 @@ export default function Groups() {
 
   return (
     <>
-      <SearchPanel groupName={[groupName, setGroupName]} />
+      <SearchPanel
+        groupName={[groupName, setGroupName]}
+        groups={[groups, setGroups]}
+      />
       <CreateGroupModal
         groupTitle={[groupTitle, setGroupTitle]}
         groupDesc={[groupDesc, setGroupDesc]}
         groupType={[groupType, setGroupType]}
+        groups={[groups, setGroups]}
       />
 
       <div className="list-group">
-        {streamList.map(({ id, title, author, description }: Stream) => {
+        {groups.map(({ id, title, author, description }: Stream) => {
           return (
             <div
-              className="list-group-item list-group-item-action"
-              aria-current="true"
-              style={{ marginBottom: "20px" }}
+              className="card text-left"
+              style={{ marginTop: "20px" }}
               key={id}
             >
-              <div className="d-flex w-100 justify-content-between">
-                <h5 className="mb-1">
-                  {title} by <a>{author}</a>
-                </h5>
-                <small>3 days ago</small>
+              <div className="card-header">Group by {author}</div>
+              <div className="card-body">
+                <h5 className="card-title">{title}</h5>
+                <p className="card-text">{description}</p>
+                <a
+                  onClick={() => goToStream(title)}
+                  className="btn btn-outline-success"
+                >
+                  Go to stream
+                </a>
               </div>
-              <p className="mb-1">{description}</p>
-              <div className="d-flex">
-                <div className="p-2 flex-grow-1">
-                  <span className="badge text-bg-success">Followed</span>
-                </div>
-                <div className="p-2">
-                  <button
-                    className="btn btn-outline-success"
-                    onClick={() => goToStream(title)}
-                  >
-                    Go to stream
-                  </button>
-                </div>
+              <div className="card-footer text-body-secondary">
+                Staus: <span className="badge text-bg-success">Followed</span>
               </div>
             </div>
           );
