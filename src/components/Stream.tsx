@@ -175,6 +175,35 @@ export default function Stream() {
 
   let author: boolean = true;
 
+  function deleteTask(id: string) {
+    setTasks((tasks) => {
+      return tasks.filter((task) => task.id !== id);
+    });
+  }
+
+  function markDone(id: string) {
+    setTasks((tasks) => {
+      return tasks.map((task) => {
+        if (task.id == id)
+          return Object.assign({}, task, { state: State.Done });
+        return task;
+      });
+    });
+  }
+
+  function startTask(id: string) {
+    setTasks((tasks) => {
+      let onGoingCount = tasks.filter((task) => task.state === State.OnGoing);
+      return onGoingCount.length === 0
+        ? tasks.map((task) => {
+            if (task.id === id)
+              return Object.assign({}, task, { state: State.OnGoing });
+            return task;
+          })
+        : tasks;
+    });
+  }
+
   return (
     <>
       <div className="d-flex">
@@ -200,7 +229,6 @@ export default function Stream() {
         {tasks.map(({ id, title, description, state, date }: Tasks) => {
           return (
             <div
-              // href="#"
               className="list-group-item list-group-item-action"
               aria-current="true"
               key={id}
@@ -245,7 +273,10 @@ export default function Stream() {
                       {state === State.BackLog ? (
                         <li>
                           <a className="dropdown-item">
-                            <button className="btn btn-outline-info">
+                            <button
+                              className="btn btn-outline-info"
+                              onClick={() => startTask(id)}
+                            >
                               Start Task
                             </button>
                           </a>
@@ -253,7 +284,10 @@ export default function Stream() {
                       ) : state === State.OnGoing ? (
                         <li>
                           <a className="dropdown-item">
-                            <button className="btn btn-outline-success">
+                            <button
+                              className="btn btn-outline-success"
+                              onClick={() => markDone(id)}
+                            >
                               Mark Done
                             </button>
                           </a>
@@ -262,7 +296,10 @@ export default function Stream() {
 
                       <li>
                         <a className="dropdown-item">
-                          <button className="btn btn-outline-danger">
+                          <button
+                            className="btn btn-outline-danger"
+                            onClick={() => deleteTask(id)}
+                          >
                             Delete Task
                           </button>
                         </a>

@@ -11,25 +11,35 @@ export default function NavBar() {
   }
 
   return (
-    <ul className="nav nav-pills">
-      <li className="nav-item">
-        <a
-          href="#"
-          className={current === "groups" ? "nav-link active" : "nav-link"}
-          onClick={() => handleNav("groups")}
-        >
-          Groups
-        </a>
-      </li>
-      <li className="nav-item">
-        <a
-          href="#"
-          className={current === "profile" ? "nav-link active" : "nav-link"}
-          onClick={() => handleNav("profile")}
-        >
-          Profile
-        </a>
-      </li>
-    </ul>
+    <>
+      <div className="card text-center">
+        <div className="card-header">
+          <ul className="nav nav-tabs card-header-tabs">
+            <li className="nav-item">
+              <a
+                className={
+                  current === "groups" ? "nav-link active" : "nav-link"
+                }
+                onClick={() => handleNav("groups")}
+                href="#"
+              >
+                Groups
+              </a>
+            </li>
+            <li className="nav-item">
+              <a
+                className={
+                  current === "profile" ? "nav-link active" : "nav-link"
+                }
+                href="#"
+                onClick={() => handleNav("profile")}
+              >
+                Profile
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </>
   );
 }
