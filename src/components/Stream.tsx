@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
+import { Button, Popover, OverlayTrigger } from "react-bootstrap";
 
 enum State {
   Done = "Done",
@@ -172,18 +173,36 @@ export default function Stream() {
   const [taskState, setTaskState] = useState("On Going");
   const [desc, setDesc] = useState("");
   const [tasks, setTasks] = useState<Tasks[]>(someTasks);
-
   let followed: boolean = false;
   const [follow, setFollow] = useState<boolean>(followed);
 
   let author: boolean = false;
+
+  const popover = (title: string) => (
+    <Popover id="popover-basic">
+      <Popover.Body>
+        <b>{title}</b>
+      </Popover.Body>
+    </Popover>
+  );
+
+  const ShowTitle = ({ children, title }: { children: any; title: string }) => (
+    <OverlayTrigger trigger="click" placement="bottom" overlay={popover(title)}>
+      {children}
+    </OverlayTrigger>
+  );
+  
+
+  function getTitle(title: string) {
+    return title.length < 30 ? title : title.slice(0, 30) + "...";
+  }
 
   function followStream() {
     setFollow(true);
   }
 
   function unfollowStream() {
-    setFollow(false)
+    setFollow(false);
   }
 
   function deleteTask(id: string) {
@@ -228,7 +247,12 @@ export default function Stream() {
                 Follow Stream
               </button>
             ) : (
-              <button className="btn btn-outline-danger" onClick={unfollowStream}>Unfollow</button>
+              <button
+                className="btn btn-outline-danger"
+                onClick={unfollowStream}
+              >
+                Unfollow
+              </button>
             )}
           </div>
         ) : (
@@ -250,12 +274,14 @@ export default function Stream() {
               aria-current="true"
               key={id}
             >
-              <div className="d-flex">
-                <div className="p-2 flex-grow-1">
-                  <h5 className="mb-1">{title}</h5>
+              <ShowTitle title={title}>
+                <div className="d-flex">
+                  <div className="p-2 flex-grow-1">
+                    <h6 className="mb-1">{getTitle(title)}</h6>
+                  </div>
+                  {date.toLocaleDateString()} at {date.toLocaleTimeString()}
                 </div>
-                {date.toLocaleDateString()} at {date.toLocaleTimeString()}
-              </div>
+              </ShowTitle>
 
               <div className="d-flex">
                 <div className="p-2 flex-grow-1">
@@ -283,9 +309,7 @@ export default function Stream() {
                       type="button"
                       data-bs-toggle="dropdown"
                       aria-expanded="false"
-                    >
-                      Actions
-                    </button>
+                    />
                     <ul className="dropdown-menu">
                       {state === State.BackLog ? (
                         <li>
