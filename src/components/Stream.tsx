@@ -173,7 +173,18 @@ export default function Stream() {
   const [desc, setDesc] = useState("");
   const [tasks, setTasks] = useState<Tasks[]>(someTasks);
 
-  let author: boolean = true;
+  let followed: boolean = false;
+  const [follow, setFollow] = useState<boolean>(followed);
+
+  let author: boolean = false;
+
+  function followStream() {
+    setFollow(true);
+  }
+
+  function unfollowStream() {
+    setFollow(false)
+  }
 
   function deleteTask(id: string) {
     setTasks((tasks) => {
@@ -212,7 +223,13 @@ export default function Stream() {
         </div>
         {!author ? (
           <div className="p-2">
-            <button className="btn btn-outline-info">Follow Stream</button>
+            {!follow ? (
+              <button className="btn btn-outline-info" onClick={followStream}>
+                Follow Stream
+              </button>
+            ) : (
+              <button className="btn btn-outline-danger" onClick={unfollowStream}>Unfollow</button>
+            )}
           </div>
         ) : (
           <AddTaskModal
