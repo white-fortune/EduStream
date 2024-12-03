@@ -25,7 +25,7 @@ function getState(state: State) {
   }
 }
 
-const AddTaskModal = ({
+function AddTaskModal({
   controlTitle,
   controlState,
   controlTask,
@@ -40,7 +40,7 @@ const AddTaskModal = ({
   ];
   controlDesc: [string, React.Dispatch<React.SetStateAction<string>>];
   streamName: string | undefined;
-}) => {
+}) {
   function addTask(title: any, state: any, description: string) {
     if (title === "") return;
     let newTask: Tasks = {
@@ -101,7 +101,7 @@ const AddTaskModal = ({
               <label className="lead">Task Description:</label>
               <textarea
                 className="form-control"
-                placeholder="Tell Something"
+                placeholder="Tell Something about the task, like the resources you will look into, or some tips!"
                 value={controlDesc[0]}
                 onChange={(e) => controlDesc[1](e.target.value)}
               />
@@ -140,7 +140,7 @@ const AddTaskModal = ({
       </div>
     </div>
   );
-};
+}
 
 export default function Stream() {
   let someTasks: Tasks[] = [
@@ -197,23 +197,15 @@ export default function Stream() {
       </div>
       {tasks.length !== 0 ? true : <h1>No tasks are added yet!</h1>}
       <div className="list-group">
-        {tasks.map(({ id, title, state, date }: Tasks) => {
+        {tasks.map(({ id, title, description, state, date }: Tasks) => {
           return (
-            <a
-              href="#"
+            <div
+              // href="#"
               className="list-group-item list-group-item-action"
               aria-current="true"
               key={id}
             >
               <div className="d-flex">
-                <div className="p-2">
-                  <input
-                    className="form-check-input me-1"
-                    type="checkbox"
-                    value=""
-                    id="firstCheckbox"
-                  />
-                </div>
                 <div className="p-2 flex-grow-1">
                   <h5 className="mb-1">{title}</h5>
                 </div>
@@ -227,20 +219,62 @@ export default function Stream() {
                     <br />
                   </small>
                 </div>
+
                 <div className="p-2">
-                  <div className="btn-group">
-                    {state === State.BackLog ? (
-                      <button className="btn btn-outline-success">
-                        Start Task
+                  <div className="dropdown">
+                    <div className="btn-group">
+                      <button
+                        className="btn btn-success"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target={"#" + id}
+                        aria-expanded="false"
+                      >
+                        Desc
                       </button>
-                    ) : null}
-                    <button className="btn btn-outline-danger">
-                      Delete Task
+                    </div>
+                    <button
+                      className="btn btn-secondary dropdown-toggle"
+                      type="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      Actions
                     </button>
+                    <ul className="dropdown-menu">
+                      {state === State.BackLog ? (
+                        <li>
+                          <a className="dropdown-item">
+                            <button className="btn btn-outline-info">
+                              Start Task
+                            </button>
+                          </a>
+                        </li>
+                      ) : state === State.OnGoing ? (
+                        <li>
+                          <a className="dropdown-item">
+                            <button className="btn btn-outline-success">
+                              Mark Done
+                            </button>
+                          </a>
+                        </li>
+                      ) : null}
+
+                      <li>
+                        <a className="dropdown-item">
+                          <button className="btn btn-outline-danger">
+                            Delete Task
+                          </button>
+                        </a>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>
-            </a>
+              <div className="collapse" id={id}>
+                <div className="card card-body">{description}</div>
+              </div>
+            </div>
           );
         })}
       </div>
