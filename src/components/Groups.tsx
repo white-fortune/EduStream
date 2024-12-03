@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import "./Groups.css";
+import { useState } from "react";
 
 interface Stream {
   id: string;
@@ -7,6 +7,115 @@ interface Stream {
   author: string;
   description: string;
 }
+
+const SearchPanel = ({ groupName }: { groupName: any }) => {
+  return (
+    <div className="input-group mb-3" style={{ marginTop: "20px" }}>
+      <input
+        type="text"
+        className="form-control"
+        placeholder="Group Name"
+        value={groupName[0]}
+        onChange={(e) => groupName[1](e.target.value)}
+      />
+      <div className="btn-group">
+        <button className="btn btn-outline-secondary" type="button">
+          Search
+        </button>
+        <button
+          className="btn btn-outline-primary"
+          type="button"
+          data-bs-toggle="modal"
+          data-bs-target="#exampleModal"
+        >
+          Create Group
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const CreateGroupModal = ({
+  groupTitle,
+  groupDesc,
+  groupType,
+}: {
+  groupTitle: any;
+  groupDesc: any;
+  groupType: any;
+}) => {
+  return (
+    <>
+      <div
+        className="modal fade"
+        id="exampleModal"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5" id="exampleModalLabel">
+                Track your progress!
+              </h1>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+
+            <div className="modal-body">
+              <label className="lead">Group Name:</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Task Title"
+                value={groupTitle[0]}
+                onChange={(e) => groupTitle[1](e.target.value)}
+              />
+              <br />
+              <label className="lead">Group Description:</label>
+              <textarea
+                className="form-control"
+                placeholder="Write less please!!"
+                value={groupDesc[0]}
+                onChange={(e) => groupDesc[1](e.target.value)}
+              />
+              <br />
+              <label className="lead">Type:</label>
+              <select
+                className="form-select"
+                value={groupType[0]}
+                onChange={(e) => groupType[1](e.target.value)}
+              >
+                <option value="private">Private</option>
+                <option value="public">Public</option>
+              </select>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-danger"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                className="btn btn-success"
+                data-bs-dismiss="modal"
+              >
+                Create
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
 
 export default function Groups() {
   let streamList: Stream[] = [
@@ -24,42 +133,58 @@ export default function Groups() {
     },
   ];
 
-  let navigate = useNavigate();
+  const navigate = useNavigate();
+  const [groupName, setGroupName] = useState("");
+  const [groupTitle, setGroupTitle] = useState("");
+  const [groupDesc, setGroupDesc] = useState("");
+  const [groupType, setGroupType] = useState("private");
+
   function goToStream(streamID: string) {
     navigate(`/stream/${streamID}`);
   }
 
   return (
     <>
-      {streamList.map(({ id, title, author, description }: Stream) => {
-        return (
-          <div className="card">
-            <p className="display-6">{title}</p>
-            <h3 className="card__title">Author: {author}</h3>
-            <p className="card__content">{description}</p>
-            <div className="card__state">
-              <span className="badge text-bg-success">Followed</span>
+      <SearchPanel groupName={[groupName, setGroupName]} />
+      <CreateGroupModal
+        groupTitle={[groupTitle, setGroupTitle]}
+        groupDesc={[groupDesc, setGroupDesc]}
+        groupType={[groupType, setGroupType]}
+      />
+
+      <div className="list-group">
+        {streamList.map(({ id, title, author, description }: Stream) => {
+          return (
+            <div
+              className="list-group-item list-group-item-action"
+              aria-current="true"
+              style={{ marginBottom: "20px" }}
+              key={id}
+            >
+              <div className="d-flex w-100 justify-content-between">
+                <h5 className="mb-1">
+                  {title} by <a>{author}</a>
+                </h5>
+                <small>3 days ago</small>
+              </div>
+              <p className="mb-1">{description}</p>
+              <div className="d-flex">
+                <div className="p-2 flex-grow-1">
+                  <span className="badge text-bg-success">Followed</span>
+                </div>
+                <div className="p-2">
+                  <button
+                    className="btn btn-outline-success"
+                    onClick={() => goToStream(title)}
+                  >
+                    Go to stream
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className="card__arrow">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                height="15"
-                width="15"
-                onClick={() => {
-                  goToStream(title);
-                }}
-              >
-                <path
-                  fill="#fff"
-                  d="M13.4697 17.9697C13.1768 18.2626 13.1768 18.7374 13.4697 19.0303C13.7626 19.3232 14.2374 19.3232 14.5303 19.0303L20.3232 13.2374C21.0066 12.554 21.0066 11.446 20.3232 10.7626L14.5303 4.96967C14.2374 4.67678 13.7626 4.67678 13.4697 4.96967C13.1768 5.26256 13.1768 5.73744 13.4697 6.03033L18.6893 11.25H4C3.58579 11.25 3.25 11.5858 3.25 12C3.25 12.4142 3.58579 12.75 4 12.75H18.6893L13.4697 17.9697Z"
-                ></path>
-              </svg>
-            </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </>
   );
 }

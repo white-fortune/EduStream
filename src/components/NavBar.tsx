@@ -13,6 +13,7 @@ export default function NavBar() {
   return (
     <>
       <div className="card text-middle">
+        <div className="card-header" style={{ marginBottom: "20px" }}>
           <ul className="nav nav-tabs card-header-tabs">
             <li className="nav-item">
               <a
@@ -37,6 +38,7 @@ export default function NavBar() {
               </a>
             </li>
           </ul>
+        </div>
       </div>
     </>
   );

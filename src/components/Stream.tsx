@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
-import { ReactNode, useState } from "react";
-import { Button, Popover, OverlayTrigger } from "react-bootstrap";
+import { useState } from "react";
+import { Popover, OverlayTrigger } from "react-bootstrap";
 
 enum State {
   Done = "Done",
@@ -167,16 +167,17 @@ export default function Stream() {
       date: new Date(),
     },
   ];
+  let author: boolean = true;
+  let followed: boolean = false;
+
 
   const { name } = useParams<{ name: string }>();
   const [taskTitle, setTaskTitle] = useState("");
   const [taskState, setTaskState] = useState("On Going");
   const [desc, setDesc] = useState("");
   const [tasks, setTasks] = useState<Tasks[]>(someTasks);
-  let followed: boolean = false;
   const [follow, setFollow] = useState<boolean>(followed);
 
-  let author: boolean = false;
 
   const popover = (title: string) => (
     <Popover id="popover-basic">
@@ -191,7 +192,7 @@ export default function Stream() {
       {children}
     </OverlayTrigger>
   );
-  
+
 
   function getTitle(title: string) {
     return title.length < 30 ? title : title.slice(0, 30) + "...";
