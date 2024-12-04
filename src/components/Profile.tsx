@@ -1,3 +1,7 @@
 export default function Profile() {
-    return <h1>This is my profile</h1>
+  return (
+    <>
+      <h1>Hello world</h1>
+    </>
+  );
 }

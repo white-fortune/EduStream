@@ -179,12 +179,12 @@ export default function Groups() {
     },
   ];
 
-  const navigate = useNavigate();
   const [groupName, setGroupName] = useState("");
   const [groupTitle, setGroupTitle] = useState("");
   const [groupDesc, setGroupDesc] = useState("");
   const [groupType, setGroupType] = useState("private");
   const [groups, setGroups] = useState(streamList);
+  const navigate = useNavigate();
 
   function goToStream(streamID: string) {
     navigate(`/stream/${streamID}`);
