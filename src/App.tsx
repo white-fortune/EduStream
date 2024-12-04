@@ -5,6 +5,8 @@ import Groups from "./components/Groups";
 import NavBar from "./components/NavBar";
 import Stream from "./components/Stream";
 import Profile from "./components/Profile";
+import Login from "./components/Login";
+import Register from "./components/Register";
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
           <Route path="/groups" element={<Groups />}></Route>
           <Route path="/stream/:name" element={<Stream />}></Route>
           <Route path="/profile" element={<Profile />}></Route>
+          <Route path="/login" element={<Login />}></Route>
+          <Route path="/register" element={<Register />}></Route>
         </Routes>
       </Router>
     </div>

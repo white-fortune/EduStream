@@ -44,6 +44,11 @@ function AddTaskModal({
 }) {
   function addTask(title: any, state: any, description: string) {
     if (title === "") return;
+
+    let onGoingCount = controlTask[0].filter(
+      (task) => task.state === State.OnGoing
+    ).length;
+
     let newTask: Tasks = {
       id: crypto.randomUUID(),
       title: title,
@@ -52,11 +57,20 @@ function AddTaskModal({
       date: new Date(),
     };
 
-    controlTask[1]((tasks: any) => {
-      return tasks.concat(newTask);
-    });
-
-    controlTitle[1]("");
+    if (state === State.OnGoing) {
+      if (onGoingCount === 0) {
+        controlTask[1]((tasks: any) => {
+          return tasks.concat(newTask);
+        });
+        controlTitle[1]("");
+      }
+    } else {
+      controlTask[1]((tasks: any) => {
+        return tasks.concat(newTask);
+      });
+      controlTitle[1]("");
+      controlDesc[1]("");
+    }
   }
 
   return (
@@ -74,7 +88,6 @@ function AddTaskModal({
         className="modal fade"
         id="exampleModal"
         aria-labelledby="exampleModalLabel"
-        aria-hidden="true"
       >
         <div className="modal-dialog">
           <div className="modal-content">
@@ -131,7 +144,6 @@ function AddTaskModal({
                 onClick={() => {
                   addTask(controlTitle[0], controlState[0], controlDesc[0]);
                 }}
-                data-bs-dismiss="modal"
               >
                 OK
               </button>
@@ -170,14 +182,12 @@ export default function Stream() {
   let author: boolean = true;
   let followed: boolean = false;
 
-
   const { name } = useParams<{ name: string }>();
   const [taskTitle, setTaskTitle] = useState("");
   const [taskState, setTaskState] = useState("On Going");
   const [desc, setDesc] = useState("");
   const [tasks, setTasks] = useState<Tasks[]>(someTasks);
   const [follow, setFollow] = useState<boolean>(followed);
-
 
   const popover = (title: string) => (
     <Popover id="popover-basic">
@@ -192,7 +202,6 @@ export default function Stream() {
       {children}
     </OverlayTrigger>
   );
-
 
   function getTitle(title: string) {
     return title.length < 30 ? title : title.slice(0, 30) + "...";
@@ -257,13 +266,15 @@ export default function Stream() {
             )}
           </div>
         ) : (
-          <AddTaskModal
-            controlTitle={[taskTitle, setTaskTitle]}
-            controlState={[taskState, setTaskState]}
-            controlTask={[tasks, setTasks]}
-            controlDesc={[desc, setDesc]}
-            streamName={name}
-          />
+          <div className="p-2">
+            <AddTaskModal
+              controlTitle={[taskTitle, setTaskTitle]}
+              controlState={[taskState, setTaskState]}
+              controlTask={[tasks, setTasks]}
+              controlDesc={[desc, setDesc]}
+              streamName={name}
+            />
+          </div>
         )}
       </div>
       {tasks.length !== 0 ? true : <h1>No tasks are added yet!</h1>}

@@ -37,6 +37,28 @@ export default function NavBar() {
                 Profile
               </a>
             </li>
+            <li className="nav-item">
+              <a
+                className={
+                  current === "login" ? "nav-link active" : "nav-link"
+                }
+                href="#"
+                onClick={() => handleNav("login")}
+              >
+                Login
+              </a>
+            </li>
+            <li className="nav-item">
+              <a
+                className={
+                  current === "register" ? "nav-link active" : "nav-link"
+                }
+                href="#"
+                onClick={() => handleNav("register")}
+              >
+                Register
+              </a>
+            </li>
           </ul>
         </div>
       </div>
