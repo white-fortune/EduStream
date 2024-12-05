@@ -95,7 +95,7 @@ const CreateGroupModal = ({
               <input
                 type="text"
                 className="form-control"
-                placeholder="Task Title"
+                placeholder="This will express the topic you will be tracking..."
                 value={streamTitle[0]}
                 onChange={(e) => streamTitle[1](e.target.value)}
               />
@@ -103,7 +103,7 @@ const CreateGroupModal = ({
               <label className="lead">Stream Description:</label>
               <textarea
                 className="form-control"
-                placeholder="Write less please!!"
+                placeholder="Some basic info to help others know what are you exactly tracking, or specifing some tips or recources..."
                 value={streamDesc[0]}
                 onChange={(e) => streamDesc[1](e.target.value)}
               />
@@ -114,8 +114,8 @@ const CreateGroupModal = ({
                 value={streamType[0]}
                 onChange={(e) => streamType[1](e.target.value)}
               >
-                <option value="private">Private</option>
-                <option value="public">Public</option>
+                <option value="private">Private - Only you will be able to use the stream</option>
+                <option value="public">Public - Everyone in EduStream can see the stream</option>
               </select>
             </div>
             <div className="modal-footer">
