@@ -1,19 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useState } from "react";
 import { Popover, OverlayTrigger } from "react-bootstrap";
-
-enum State {
-  Done = "Done",
-  OnGoing = "On Going",
-  BackLog = "Back Log",
-}
-interface Tasks {
-  id: string;
-  title: string;
-  state: State;
-  description: string;
-  date: Date;
-}
+import { ITasks, State } from "../structures/types";
 
 function getState(state: State) {
   switch (state) {
@@ -36,8 +24,8 @@ function AddTaskModal({
   controlTitle: [string, React.Dispatch<React.SetStateAction<string>>];
   controlState: [string, React.Dispatch<React.SetStateAction<string>>];
   controlTask: [
-    Tasks[] | [],
-    React.Dispatch<React.SetStateAction<Tasks[] | []>>
+    ITasks[] | [],
+    React.Dispatch<React.SetStateAction<ITasks[] | []>>
   ];
   controlDesc: [string, React.Dispatch<React.SetStateAction<string>>];
   streamName: string | undefined;
@@ -49,7 +37,7 @@ function AddTaskModal({
       (task) => task.state === State.OnGoing
     ).length;
 
-    let newTask: Tasks = {
+    let newTask: ITasks = {
       id: crypto.randomUUID(),
       title: title,
       state: state,
@@ -156,7 +144,7 @@ function AddTaskModal({
 }
 
 export default function Stream() {
-  let someTasks: Tasks[] = [
+  let someTasks: ITasks[] = [
     {
       id: crypto.randomUUID(),
       title: "Chemistry: Quantum Numbers",
@@ -186,7 +174,7 @@ export default function Stream() {
   const [taskTitle, setTaskTitle] = useState("");
   const [taskState, setTaskState] = useState("On Going");
   const [desc, setDesc] = useState("");
-  const [tasks, setTasks] = useState<Tasks[]>(someTasks);
+  const [tasks, setTasks] = useState<ITasks[]>(someTasks);
   const [follow, setFollow] = useState<boolean>(followed);
 
   const popover = (title: string) => (
@@ -279,7 +267,7 @@ export default function Stream() {
       </div>
       {tasks.length !== 0 ? true : <h1>No tasks are added yet!</h1>}
       <div className="list-group">
-        {tasks.map(({ id, title, description, state, date }: Tasks) => {
+        {tasks.map(({ id, title, description, state, date }: ITasks) => {
           return (
             <div
               className="list-group-item list-group-item-action"

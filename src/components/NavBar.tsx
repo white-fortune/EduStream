@@ -18,12 +18,12 @@ export default function NavBar() {
             <li className="nav-item">
               <a
                 className={
-                  current === "groups" ? "nav-link active" : "nav-link"
+                  current === "streams" ? "nav-link active" : "nav-link"
                 }
-                onClick={() => handleNav("groups")}
+                onClick={() => handleNav("streams")}
                 href="#"
               >
-                Groups
+                Streams
               </a>
             </li>
             <li className="nav-item">

@@ -1,34 +1,22 @@
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import Stream from "./Stream";
-
-enum GroupType {
-  Public,
-  Private,
-}
-interface Stream {
-  id: string;
-  title: string;
-  author: string;
-  description: string;
-  type: GroupType;
-}
+import { StreamType, IStream } from "../structures/types";
+import StreamElement from "./common/Stream.structure";
 
 const SearchPanel = ({
-  groupName,
-  groups,
-}: {
-  groupName: any;
-  groups: any;
+  streamName,
+}: // streams
+{
+  streamName: any;
+  streams: any;
 }) => {
   return (
     <div className="input-group mb-3" style={{ marginTop: "20px" }}>
       <input
         type="text"
         className="form-control"
-        placeholder="Group Name"
-        value={groupName[0]}
-        onChange={(e) => groupName[1](e.target.value)}
+        placeholder="Stream Name"
+        value={streamName[0]}
+        onChange={(e) => streamName[1](e.target.value)}
       />
       <div className="btn-group">
         <button className="btn btn-outline-secondary" type="button">
@@ -40,7 +28,7 @@ const SearchPanel = ({
           data-bs-toggle="modal"
           data-bs-target="#exampleModal"
         >
-          Create Group
+          Create Stream
         </button>
       </div>
     </div>
@@ -48,24 +36,24 @@ const SearchPanel = ({
 };
 
 const CreateGroupModal = ({
-  groupTitle,
-  groupDesc,
-  groupType,
-  groups,
+  streamTitle,
+  streamDesc,
+  streamType,
+  streams,
 }: {
-  groupTitle: any;
-  groupDesc: any;
-  groupType: any;
-  groups: any;
+  streamTitle: any;
+  streamDesc: any;
+  streamType: any;
+  streams: any;
 }) => {
-  function createGroup(
+  function createStream(
     title: any,
     author: any,
     description: string,
     type: any
   ) {
     if (title === "") return;
-    let newTask: Stream = {
+    let newTask: IStream = {
       id: crypto.randomUUID(),
       title: title,
       description: description,
@@ -73,11 +61,11 @@ const CreateGroupModal = ({
       type: type,
     };
 
-    groups[1]((tasks: any) => {
+    streams[1]((tasks: any) => {
       return tasks.concat(newTask);
     });
 
-    groupTitle[1]("");
+    streamTitle[1]("");
   }
 
   return (
@@ -103,28 +91,28 @@ const CreateGroupModal = ({
             </div>
 
             <div className="modal-body">
-              <label className="lead">Group Name:</label>
+              <label className="lead">Stream Name:</label>
               <input
                 type="text"
                 className="form-control"
                 placeholder="Task Title"
-                value={groupTitle[0]}
-                onChange={(e) => groupTitle[1](e.target.value)}
+                value={streamTitle[0]}
+                onChange={(e) => streamTitle[1](e.target.value)}
               />
               <br />
-              <label className="lead">Group Description:</label>
+              <label className="lead">Stream Description:</label>
               <textarea
                 className="form-control"
                 placeholder="Write less please!!"
-                value={groupDesc[0]}
-                onChange={(e) => groupDesc[1](e.target.value)}
+                value={streamDesc[0]}
+                onChange={(e) => streamDesc[1](e.target.value)}
               />
               <br />
               <label className="lead">Type:</label>
               <select
                 className="form-select"
-                value={groupType[0]}
-                onChange={(e) => groupType[1](e.target.value)}
+                value={streamType[0]}
+                onChange={(e) => streamType[1](e.target.value)}
               >
                 <option value="private">Private</option>
                 <option value="public">Public</option>
@@ -143,11 +131,11 @@ const CreateGroupModal = ({
                 className="btn btn-success"
                 data-bs-dismiss="modal"
                 onClick={() =>
-                  createGroup(
-                    groupTitle[0],
+                  createStream(
+                    streamTitle[0],
                     "John Doe",
-                    groupDesc[0],
-                    groupType
+                    streamDesc[0],
+                    streamType
                   )
                 }
               >
@@ -161,71 +149,54 @@ const CreateGroupModal = ({
   );
 };
 
-export default function Groups() {
-  let streamList: Stream[] = [
+export default function Streams() {
+  let streamList: IStream[] = [
     {
       id: crypto.randomUUID(),
       title: "Study With ME!",
       author: "John Doe",
       description: "Keep syncing your study",
-      type: GroupType.Private,
+      type: StreamType.Private,
     },
     {
       id: crypto.randomUUID(),
       title: "Sync Study",
       author: "Maria",
       description: "Let's start with chemistry",
-      type: GroupType.Public,
+      type: StreamType.Public,
     },
   ];
 
-  const [groupName, setGroupName] = useState("");
-  const [groupTitle, setGroupTitle] = useState("");
-  const [groupDesc, setGroupDesc] = useState("");
-  const [groupType, setGroupType] = useState("private");
-  const [groups, setGroups] = useState(streamList);
-  const navigate = useNavigate();
-
-  function goToStream(streamID: string) {
-    navigate(`/stream/${streamID}`);
-  }
+  const [streamName, setStreamName] = useState("");
+  const [streamTitle, setStreamTitle] = useState("");
+  const [streamDesc, setStreamDesc] = useState("");
+  const [streamType, setStreamType] = useState("private");
+  const [streams, setStreams] = useState(streamList);
 
   return (
     <>
       <SearchPanel
-        groupName={[groupName, setGroupName]}
-        groups={[groups, setGroups]}
+        streamName={[streamName, setStreamName]}
+        streams={[streams, setStreams]}
       />
       <CreateGroupModal
-        groupTitle={[groupTitle, setGroupTitle]}
-        groupDesc={[groupDesc, setGroupDesc]}
-        groupType={[groupType, setGroupType]}
-        groups={[groups, setGroups]}
+        streamTitle={[streamTitle, setStreamTitle]}
+        streamDesc={[streamDesc, setStreamDesc]}
+        streamType={[streamType, setStreamType]}
+        streams={[streams, setStreams]}
       />
 
       <div className="list-group">
-        {groups.map(({ id, title, author, description }: Stream) => {
+        {streams.map(({ id, title, author, description, type }: IStream) => {
           return (
-            <div
-              className="card text-left"
-              style={{ marginTop: "20px" }}
+            <StreamElement
+              id={id}
+              author={author}
+              title={title}
+              description={description}
+              type={type}
               key={id}
-            >
-              <div className="card-header">Group by {author}</div>
-              <div className="card-body">
-                <h5 className="card-title">{title}</h5>
-                <p className="card-text">{description}</p>
-                <a
-                  onClick={() => goToStream(title)}
-                  className="btn btn-outline-success"
-                >
-                  Go to stream
-                </a>
-              </div>
-              <div className="card-footer text-body-secondary">
-                Staus: <span className="badge text-bg-success">Followed</span>
-              </div>
-            </div>
+            />
           );
         })}
       </div>
