@@ -1,10 +1,20 @@
 import StreamElement from "./common/Stream.structure";
 import { IStream, StreamType } from "../structures/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Profile() {
-  let display_name: string = "John Doe";
-  let email: string = "hello@hello.com";
+  const [profile, setProfile] = useState<{ display_name: string, email: string }>({ display_name: "User", email: "user@user.com"});
+
+  useEffect(() => {
+    fetch("http://localhost:2000/profile", { credentials: "include" })
+      .then((response) => response.json())
+      .then((data) => {
+        setProfile(data);
+      });
+  }, []);
+
+  let display_name: string = profile.display_name;
+  let email: string = profile.email;
 
   const [viewStream, setViewStream] = useState("owned");
 
