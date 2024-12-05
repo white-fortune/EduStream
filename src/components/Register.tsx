@@ -1,52 +1,115 @@
-import { BaseSyntheticEvent, useState } from "react";
+import { BaseSyntheticEvent, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const server = "http://localhost:2000";
+
+const Alert = ({ message }: { message: string }) => {
+  return (
+    <div
+      className="alert alert-warning alert-dismissible fade show"
+      role="alert"
+      style={{
+        marginTop: "50px",
+        display: "block",
+        maxWidth: "30rem",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+      }}
+    >
+      {message}
+      <button
+        type="button"
+        className="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Close"
+      ></button>
+    </div>
+  );
+};
 
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [alerts, setAlerts] = useState<{ message: string }[]>([]);
+
+  const navigate = useNavigate();
 
   async function handleRegister(e: BaseSyntheticEvent) {
     e.preventDefault();
+
+    let userData = new FormData();
+    userData.append("email", email);
+    userData.append("display_name", displayName);
+    userData.append("password", password);
+
+    let response = await fetch(`${server}/register`, {
+      method: "POST",
+      body: userData,
+    });
+    let data = await response.json();
+    let isAuth: boolean = data.auth;
+    isAuth
+      ? navigate("/login")
+      : (function () {
+          setPassword("");
+          setAlerts((alerts) => {
+            return alerts.concat({ message: data.message });
+          });
+        })();
   }
 
   return (
-    <div className="card text-left" style={{ marginTop: "20px" }}>
-      <div className="card-header text-center">
-        <h1>Join EduStream</h1>
-      </div>
-      <div className="card-body">
-        <label>Email Address:</label>
-        <input
-          type="email"
-          className="form-control"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <br />
-        <label>Display Name:</label>
-        <input
-          type="text"
-          className="form-control"
-          value={displayName}
-          onChange={(e) => setDisplayName(e.target.value)}
-        />
-        <br />
-        <label>Password:</label>
-        <input
-          type="password"
-          className="form-control"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <br />
-        <div className="d-grid">
-          <button className="btn btn-success" onClick={handleRegister}>
-            Register
-          </button>
+    <>
+      {alerts.map((alert) => {
+        return <Alert message={alert.message} />;
+      })}
+      <div
+        className="card text-left"
+        style={{
+          marginTop: "220px",
+          maxWidth: "30rem",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      >
+        <div className="card-header text-center">
+          <h1>Join EduStream</h1>
+        </div>
+        <div className="card-body">
+          <label>Email Address:</label>
+          <input
+            type="email"
+            className="form-control"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <br />
+          <label>Display Name:</label>
+          <input
+            type="text"
+            className="form-control"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+          />
+          <br />
+          <label>Password:</label>
+          <input
+            type="password"
+            className="form-control"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <br />
+          <div className="d-grid">
+            <button className="btn btn-success" onClick={handleRegister}>
+              Register
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
