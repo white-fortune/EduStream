@@ -69,6 +69,9 @@ const CreateGroupModal = ({
         data.ok
           ? (function () {
               console.log(data.stream);
+              streams[1]((prev_streams: any) => {
+                return prev_streams.concat(data.stream)
+              })
             })()
           : console.log(data.message);
       });
@@ -155,26 +158,7 @@ const CreateGroupModal = ({
 };
 
 export default function Streams() {
-  let streamList: IStream[] = [
-    {
-      stream_id: crypto.randomUUID(),
-      name: "Study With ME!",
-      author: {
-        display_name: "Moshi",
-      },
-      description: "Keep syncing your study",
-      stream_type: StreamType.Private,
-    },
-    {
-      stream_id: crypto.randomUUID(),
-      name: "Sync Study",
-      author: {
-        display_name: "Mozia",
-      },
-      description: "Let's start with chemistry",
-      stream_type: StreamType.Public,
-    },
-  ];
+  let streamList: IStream[] = [];
 
   const [streamName, setStreamName] = useState("");
   const [streamTitle, setStreamTitle] = useState("");
@@ -193,8 +177,10 @@ export default function Streams() {
           ? navigate("/login")
           : fetch("http://localhost:2000/api/getStreams")
               .then((response) => response.json())
-              .then((streams) => {
-                console.log(streams);
+              .then(({ streams }) => {
+                setStreams((prev_streams) => {
+                  return prev_streams.concat(streams)
+                });
               });
       });
   }, []);
@@ -213,18 +199,20 @@ export default function Streams() {
       />
 
       <div className="list-group">
-        {streams.map(({ stream_id, name, author, description, stream_type }: IStream) => {
-          return (
-            <StreamElement
-              stream_id={stream_id}
-              author={author}
-              name={name}
-              description={description}
-              stream_type={stream_type}
-              key={stream_id}
-            />
-          );
-        })}
+        {streams.map(
+          ({ stream_id, name, author, description, stream_type }: IStream) => {
+            return (
+              <StreamElement
+                stream_id={stream_id}
+                author={author}
+                name={name}
+                description={description}
+                stream_type={stream_type}
+                key={stream_id}
+              />
+            );
+          }
+        )}
       </div>
     </>
   );
