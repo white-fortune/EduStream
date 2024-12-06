@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser'
 
 import userModel from './schemas/users.js'
 import streamModel from './schemas/streams.js'
+import taskModel from './schemas/tasks.js'
 
 mongoose.connect("mongodb://localhost:27017/edustream").then(() => {
     console.log(`Connected to database edustream`)
@@ -40,19 +41,35 @@ class ManageDB {
         return user
     }
 
-    async getProfileMetaData(userID) {
-        let user = await userModel.findOne({ userID: userID }, { display_name: 1, email: 1 })
-        return user
-    }
-
     async createStream(streamData) {
         let stream = await streamModel.create(streamData)
         return stream.populate('author', 'display_name')
     }
 
+    async getProfileMetaData(userID) {
+        let user = await userModel.findOne({ userID: userID }, { display_name: 1, email: 1 })
+        return user
+    }
+
+    async getStreamMetaData(stream_id) {
+        let stream = await streamModel.findOne({ stream_id: stream_id }, { name: 1 })
+        return stream
+    }
+
     async getStreams() {
         let streams = await streamModel.find({ stream_type: "public"}).populate('author', 'display_name')
         return streams
+    }
+
+    async addTask(taskData) {
+        let task = await taskModel.create(taskData)
+        return task
+    }
+
+    async getTasks(stream_id) {
+        let stream = await streamModel.findOne({ stream_id: stream_id }, { _id: 1 })
+        let tasks = await taskModel.find({ stream: stream._id })
+        return tasks
     }
 }
 let db = new ManageDB()
@@ -76,15 +93,6 @@ app.use(session({
 app.get("/api/session", async (req, res) => {
     req.session.email ? res.json({ auth: true }) : res.json({ auth: false })
 })
-app.get("/api/getProfile", async (req, res) => {
-    try {
-        let userID = req.query.userID
-        let user = await db.getProfileMetaData(userID)
-        res.json({ ok: true, user: user })
-    } catch (error) {
-        res.json({ ok: false, message: error })
-    }
-})
 app.get("/api/getStreams", async (req, res) => {
     let publicStreams = await db.getStreams()
     res.json({ streams: publicStreams })
@@ -102,6 +110,27 @@ app.post("/api/createStream", multer().none(), async (req, res) => {
     } catch (error) {
         res.json({ ok: false, message: error })
     }
+})
+app.get("/api/getStreamMetaData", async (req, res) => {
+    let stream_id = req.query.streamID
+    let stream = await db.getStreamMetaData(stream_id)
+    res.json(stream)
+})
+app.post("/api/addTask", multer().none(), async (req, res) => {
+    let stream = (await db.getStreamMetaData(req.body.stream))._id
+    let taskData = {
+        stream: stream,
+        title: req.body.title,
+        description: req.body.description,
+        state: req.body.state
+    }
+    let task = await db.addTask(taskData)
+    res.json(task)
+})
+app.get("/api/getTasks", async (req, res) => {
+    let stream_id = req.query.streamID
+    let tasks = await db.getTasks(stream_id)
+    res.json(tasks)
 })
 
 app.post("/register", multer().none(), async (req, res) => {

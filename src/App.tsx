@@ -16,7 +16,7 @@ function App() {
         <Routes>
           <Route path="/" element={<h1>This is home page</h1>}></Route>
           <Route path="/streams" element={<Streams />}></Route>
-          <Route path="/stream/:name" element={<Stream />}></Route>
+          <Route path="/stream/:stream_id" element={<Stream />}></Route>
           <Route path="/profile" element={<Profile />}></Route>
           <Route path="/login" element={<Login />}></Route>
           <Route path="/register" element={<Register />}></Route>

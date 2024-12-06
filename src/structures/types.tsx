@@ -14,12 +14,12 @@ export interface IStream {
 }
 
 export enum State {
-  Done = "Done",
-  OnGoing = "On Going",
-  BackLog = "Back Log",
+  Done = "done",
+  OnGoing = "on-going",
+  BackLog = "backlog",
 }
 export interface ITasks {
-  id: string;
+  task_id: string;
   title: string;
   state: State;
   description: string;

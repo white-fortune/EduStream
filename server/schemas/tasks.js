@@ -21,6 +21,10 @@ let TasksSchema = new mongoose.Schema({
     task_id: {
         type: String,
         unique: true
+    },
+    date: {
+        type: Date,
+        default: new Date()
     }
 })
 
@@ -30,5 +34,5 @@ TasksSchema.pre("save", function(next) {
 })
 
 
-let taskModel = mongoose.model('streams', TasksSchema)
+let taskModel = mongoose.model('tasks', TasksSchema)
 export default taskModel

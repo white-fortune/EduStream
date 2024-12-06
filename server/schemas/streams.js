@@ -32,7 +32,7 @@ StreamsSchema.pre('save', function(next) {
             lower: "true",
             strict: true,
             trim: true
-        }) + crypto.randomUUID().split("-")[4]
+        }) + "-" + crypto.randomUUID().split("-")[4]
     }
     next()
 })

@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Popover, OverlayTrigger } from "react-bootstrap";
 import { ITasks, State } from "../structures/types";
 
@@ -30,34 +30,46 @@ function AddTaskModal({
   controlDesc: [string, React.Dispatch<React.SetStateAction<string>>];
   streamName: string | undefined;
 }) {
-  function addTask(title: any, state: any, description: string) {
+  let { stream_id } = useParams<{ stream_id: string }>();
+
+  async function addTask(title: any, state: any) {
     if (title === "") return;
 
     let onGoingCount = controlTask[0].filter(
       (task) => task.state === State.OnGoing
     ).length;
 
-    let newTask: ITasks = {
-      id: crypto.randomUUID(),
-      title: title,
-      state: state,
-      description: description,
-      date: new Date(),
-    };
+    async function addTaskServer() {
+      let taskData = new FormData();
+      taskData.append("stream", stream_id!);
+      taskData.append("title", controlTitle[0]);
+      taskData.append("description", controlDesc[0]);
+      taskData.append("state", controlState[0]);
+
+      let response = await fetch("http://localhost:2000/api/addTask", {
+        method: "POST",
+        credentials: "include",
+        body: taskData,
+      });
+      let data = await response.json();
+      return data;
+    }
 
     if (state === State.OnGoing) {
       if (onGoingCount === 0) {
-        controlTask[1]((tasks: any) => {
-          return tasks.concat(newTask);
+        addTaskServer().then((task) => {
+          console.log(task);
+          controlTask[1]((tasks: any) => {
+            return tasks.concat(task);
+          });
         });
-        controlTitle[1]("");
       }
     } else {
-      controlTask[1]((tasks: any) => {
-        return tasks.concat(newTask);
+      addTaskServer().then((task) => {
+        controlTask[1]((tasks: any) => {
+          return tasks.concat(task);
+        });
       });
-      controlTitle[1]("");
-      controlDesc[1]("");
     }
   }
 
@@ -130,7 +142,7 @@ function AddTaskModal({
                 type="button"
                 className="btn btn-success"
                 onClick={() => {
-                  addTask(controlTitle[0], controlState[0], controlDesc[0]);
+                  addTask(controlTitle[0], controlState[0]);
                 }}
               >
                 OK
@@ -144,38 +156,42 @@ function AddTaskModal({
 }
 
 export default function Stream() {
-  let someTasks: ITasks[] = [
-    {
-      id: crypto.randomUUID(),
-      title: "Chemistry: Quantum Numbers",
-      state: State.OnGoing,
-      description: "This is something!",
-      date: new Date(),
-    },
-    {
-      id: crypto.randomUUID(),
-      title: "Physics: Chapter 2: Vector Calculus",
-      state: State.Done,
-      description: "This is something!",
-      date: new Date(),
-    },
-    {
-      id: crypto.randomUUID(),
-      title: "Statistics: Chapter 2: Revision",
-      state: State.BackLog,
-      description: "This is something!",
-      date: new Date(),
-    },
-  ];
   let author: boolean = true;
   let followed: boolean = false;
 
-  const { name } = useParams<{ name: string }>();
+  let initialTasks: ITasks[] = [
+    {
+      task_id: "0",
+      title: "",
+      state: State.BackLog,
+      description: "",
+      date: new Date()
+    }
+  ]
+
+  const { stream_id } = useParams<{ stream_id: string }>();
   const [taskTitle, setTaskTitle] = useState("");
-  const [taskState, setTaskState] = useState("On Going");
+  const [taskState, setTaskState] = useState("on-going");
   const [desc, setDesc] = useState("");
-  const [tasks, setTasks] = useState<ITasks[]>(someTasks);
+  const [tasks, setTasks] = useState<ITasks[]>(initialTasks);
   const [follow, setFollow] = useState<boolean>(followed);
+  const [name, setName] = useState("");
+
+  useEffect(() => {
+    fetch(`http://localhost:2000/api/getStreamMetaData?streamID=${stream_id}`)
+      .then((response) => response.json())
+      .then((data) => {
+        setName(data.name);
+      });
+
+    fetch(`http://localhost:2000/api/getTasks?streamID=${stream_id}`)
+      .then((response) => response.json())
+      .then((data) => {
+        setTasks((prev_tasks) => {
+          return prev_tasks?.concat(data);
+        });
+      });
+  }, []);
 
   const popover = (title: string) => (
     <Popover id="popover-basic">
@@ -205,14 +221,14 @@ export default function Stream() {
 
   function deleteTask(id: string) {
     setTasks((tasks) => {
-      return tasks.filter((task) => task.id !== id);
+      return tasks.filter((task) => task.task_id !== id);
     });
   }
 
   function markDone(id: string) {
     setTasks((tasks) => {
       return tasks.map((task) => {
-        if (task.id == id)
+        if (task.task_id == id)
           return Object.assign({}, task, { state: State.Done });
         return task;
       });
@@ -224,7 +240,7 @@ export default function Stream() {
       let onGoingCount = tasks.filter((task) => task.state === State.OnGoing);
       return onGoingCount.length === 0
         ? tasks.map((task) => {
-            if (task.id === id)
+            if (task.task_id === id)
               return Object.assign({}, task, { state: State.OnGoing });
             return task;
           })
@@ -265,21 +281,22 @@ export default function Stream() {
           </div>
         )}
       </div>
-      {tasks.length !== 0 ? true : <h1>No tasks are added yet!</h1>}
+      {tasks.length == 1 ? <h1>No tasks are added yet!</h1> : null }
       <div className="list-group">
-        {tasks.map(({ id, title, description, state, date }: ITasks) => {
+        {tasks.filter(task => task.task_id !== "0").map(({ task_id, title, description, state, date }: ITasks) => {
           return (
             <div
               className="list-group-item list-group-item-action"
               aria-current="true"
-              key={id}
+              key={task_id}
             >
               <ShowTitle title={title}>
                 <div className="d-flex">
                   <div className="p-2 flex-grow-1">
                     <h6 className="mb-1">{getTitle(title)}</h6>
                   </div>
-                  {date.toLocaleDateString()} at {date.toLocaleTimeString()}
+                  {new Date(date).toLocaleDateString()} at{" "}
+                  {new Date(date).toLocaleTimeString()}
                 </div>
               </ShowTitle>
 
@@ -298,7 +315,7 @@ export default function Stream() {
                         className="btn btn-success"
                         type="button"
                         data-bs-toggle="collapse"
-                        data-bs-target={"#" + id}
+                        data-bs-target={"#" + task_id}
                         aria-expanded="false"
                       >
                         Desc
@@ -316,7 +333,7 @@ export default function Stream() {
                           <a className="dropdown-item">
                             <button
                               className="btn btn-outline-info"
-                              onClick={() => startTask(id)}
+                              onClick={() => startTask(task_id)}
                             >
                               Start Task
                             </button>
@@ -327,7 +344,7 @@ export default function Stream() {
                           <a className="dropdown-item">
                             <button
                               className="btn btn-outline-success"
-                              onClick={() => markDone(id)}
+                              onClick={() => markDone(task_id)}
                             >
                               Mark Done
                             </button>
@@ -339,7 +356,7 @@ export default function Stream() {
                         <a className="dropdown-item">
                           <button
                             className="btn btn-outline-danger"
-                            onClick={() => deleteTask(id)}
+                            onClick={() => deleteTask(task_id)}
                           >
                             Delete Task
                           </button>
@@ -349,7 +366,7 @@ export default function Stream() {
                   </div>
                 </div>
               </div>
-              <div className="collapse" id={id}>
+              <div className="collapse" id={task_id}>
                 <div className="card card-body">{description}</div>
               </div>
             </div>
