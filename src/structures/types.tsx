@@ -23,3 +23,8 @@ export interface ITasks {
   description: string;
   date: Date;
 }
+
+export interface IAlert {
+  id: string;
+  message: string;
+}

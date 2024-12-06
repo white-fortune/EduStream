@@ -1,11 +1,12 @@
 import { BaseSyntheticEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Alert } from "./common/Alert.structure";
+import { IAlert } from "../structures/types";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [alerts, setAlerts] = useState<{ message: string }[]>([]);
+  const [alert, setAlert] = useState<IAlert>({ id: "0", message: "" });
   let navigate = useNavigate();
 
   useEffect(() => {
@@ -39,17 +40,15 @@ export default function Login() {
       : (function () {
           setPassword("");
           setEmail("");
-          setAlerts((alerts) => {
-            return alerts.concat({ message: data.message });
-          });
+          setAlert({ id: crypto.randomUUID(), message: data.message });
         })();
   }
 
   return (
     <>
-      {alerts.map((alert) => {
-        return <Alert message={alert.message} key={crypto.randomUUID()} />;
-      })}
+      {alert.id !== "0" ? (
+        <Alert controlAlert={[alert, setAlert]} key={alert.id} />
+      ) : null}
       <div
         className="card text-left"
         style={{

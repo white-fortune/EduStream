@@ -1,18 +1,26 @@
-import { BaseSyntheticEvent, useState } from "react";
+import { BaseSyntheticEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Alert } from "./common/Alert.structure";
+import { IAlert } from "../structures/types";
 
 const server = "http://localhost:2000";
-
-
 
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [alerts, setAlerts] = useState<{ message: string }[]>([]);
-
+  const [alert, setAlert] = useState<IAlert>({ id: "0", message: "" });
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetch("http://localhost:2000/api/session", {
+      credentials: "include",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        data.auth ? navigate("/profile") : null;
+      });
+  }, []);
 
   async function handleRegister(e: BaseSyntheticEvent) {
     e.preventDefault();
@@ -32,17 +40,15 @@ export default function Register() {
       ? navigate("/login")
       : (function () {
           setPassword("");
-          setAlerts((alerts) => {
-            return alerts.concat({ message: data.message });
-          });
+          setAlert({ id: crypto.randomUUID(), message: data.message });
         })();
   }
 
   return (
     <>
-      {alerts.map((alert) => {
-        return <Alert message={alert.message} />;
-      })}
+      {alert.id !== "0" ? (
+        <Alert controlAlert={[alert, setAlert]} key={alert.id} />
+      ) : null}
       <div
         className="card text-left"
         style={{

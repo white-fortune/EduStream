@@ -1,8 +1,21 @@
-export  const Alert = ({ message }: { message: string }) => {
-    return (
+import { IAlert } from "../../structures/types";
+
+export const Alert = ({
+  controlAlert,
+}: {
+  controlAlert: [
+    IAlert,
+    React.Dispatch<React.SetStateAction<IAlert>>
+  ];
+}) => {
+  function deleteAlert() {
+    controlAlert[1]({ id: "0", message: "0" })
+  }
+
+  return (
+    <>
       <div
         className="alert alert-warning alert-dismissible fade show"
-        role="alert"
         style={{
           marginTop: "50px",
           display: "block",
@@ -12,13 +25,13 @@ export  const Alert = ({ message }: { message: string }) => {
           transform: "translate(-50%, -50%)",
         }}
       >
-        {message}
+        {controlAlert[0] ? controlAlert[0].message : null}
         <button
           type="button"
           className="btn-close"
-          data-bs-dismiss="alert"
-          aria-label="Close"
+          onClick={deleteAlert}
         ></button>
       </div>
-    );
-  };
+    </>
+  );
+};
