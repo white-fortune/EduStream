@@ -1,17 +1,31 @@
 import StreamElement from "./common/Stream.structure";
 import { IStream, StreamType } from "../structures/types";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
-  const [profile, setProfile] = useState<{ display_name: string, email: string }>({ display_name: "User", email: "user@user.com"});
+  const [profile, setProfile] = useState<{
+    display_name: string;
+    email: string;
+  }>({ display_name: "User", email: "user@user.com" });
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:2000/profile", { credentials: "include" })
+    fetch("http://localhost:2000/api/session", {
+      credentials: "include",
+    })
       .then((response) => response.json())
       .then((data) => {
-        setProfile(data);
+        !data.auth
+          ? navigate("/login")
+          : fetch("http://localhost:2000/profile", { credentials: "include" })
+              .then((response) => response.json())
+              .then((data) => {
+                setProfile(data);
+              });
       });
   }, []);
+
 
   let display_name: string = profile.display_name;
   let email: string = profile.email;

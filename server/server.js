@@ -7,6 +7,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 
 import userModel from './schemas/users.js'
+import streamModel from './schemas/streams.js'
 
 mongoose.connect("mongodb://localhost:27017/edustream").then(() => {
     console.log(`Connected to database edustream`)
@@ -26,7 +27,7 @@ class ManageDB {
             } else {
                 let password = user.password
                 if (password === userData.password) {
-                    resolve(user)
+                    resolve(user.userID)
                 } else {
                     rejecet("Password is incorrect!")
                 }
@@ -38,6 +39,21 @@ class ManageDB {
         let user = await userModel.findOne({ email: email }, { email: 1, display_name: 1 })
         return user
     }
+
+    async getProfileMetaData(userID) {
+        let user = await userModel.findOne({ userID: userID }, { display_name: 1, email: 1 })
+        return user
+    }
+
+    async createStream(streamData) {
+        let stream = await streamModel.create(streamData)
+        return stream.populate('author', 'display_name')
+    }
+
+    async getStreams() {
+        let streams = await streamModel.find({ stream_type: "public"}).populate('author', 'display_name')
+        return streams
+    }
 }
 let db = new ManageDB()
 
@@ -45,6 +61,7 @@ const app = express()
 const port = process.env.PORT
 
 app.use(cors({ origin: "http://localhost:5173", credentials: true }))
+app.use(cookieParser())
 app.use(session({
     secret: "a-secret-key",
     resave: false,
@@ -55,29 +72,59 @@ app.use(session({
         maxAge: 1000 * 60 * 60
     }
 }))
-app.use(cookieParser())
 
 app.get("/api/session", async (req, res) => {
     req.session.email ? res.json({ auth: true }) : res.json({ auth: false })
 })
+app.get("/api/getProfile", async (req, res) => {
+    try {
+        let userID = req.query.userID
+        let user = await db.getProfileMetaData(userID)
+        res.json({ ok: true, user: user })
+    } catch (error) {
+        res.json({ ok: false, message: error })
+    }
+})
+app.get("/api/getStreams", async (req, res) => {
+    let publicStreams = await db.getStreams()
+    res.json({ streams: publicStreams })
+})
+app.post("/api/createStream", multer().none(), async (req, res) => {
+    let streamData = {
+        name: req.body.name,
+        author: (await db.getProfileMetaData(req.body.userID))._id,
+        description: req.body.description,
+        stream_type: req.body.stream_type
+    }
+    try {
+        let stream = await db.createStream(streamData)
+        return res.json({ ok: true, stream: stream })
+    } catch (error) {
+        res.json({ ok: false, message: error })
+    }
+})
 
 app.post("/register", multer().none(), async (req, res) => {
-    try {
-        let userData = {
-            email: req.body.email,
-            display_name: req.body.display_name,
-            password: req.body.password
-        }
-        req.session.email = userData.email
-        await db.registerUser(userData)
+    if (req.session.email) {
+        res.redirect("/profile")
+    } else {
+        try {
+            let userData = {
+                email: req.body.email,
+                display_name: req.body.display_name,
+                password: req.body.password
+            }
+            req.session.email = userData.email
+            await db.registerUser(userData)
 
-        res.json({ auth: true })
-    } catch (error) {
-        if (error.code === 11000) {
-            let duplicate_field = error.keyPattern
-            res.json({ auth: false, message: `Please check the "${Object.keys(duplicate_field)[0]}" again. Account with this email already exists!!` })
-        } else {
-            res.json({ auth: false, message: "Can you please try again in some time?? The server is crying in under-pressure!!" })
+            res.json({ auth: true })
+        } catch (error) {
+            if (error.code === 11000) {
+                let duplicate_field = error.keyPattern
+                res.json({ auth: false, message: `Please check the "${Object.keys(duplicate_field)[0]}" again. Account with this email already exists!!` })
+            } else {
+                res.json({ auth: false, message: "Can you please try again in some time?? The server is crying in under-pressure!!" })
+            }
         }
     }
 })
@@ -91,8 +138,10 @@ app.post("/login", multer().none(), async (req, res) => {
                 email: req.body.email,
                 password: req.body.password
             }
-            await db.varifyLogin(userData)
+            let userID = await db.varifyLogin(userData)
             req.session.email = userData.email
+            res.cookie('userID', userID)
+
             res.json({ auth: true })
         } catch (error) {
             res.json({ auth: false, message: error })
@@ -108,6 +157,7 @@ app.get("/profile", async (req, res) => {
         res.json(user)
     }
 })
+
 
 app.listen(port, () => {
     console.log(`Server is listening on ${port}`)

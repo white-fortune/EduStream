@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { StreamType, IStream } from "../structures/types";
 import StreamElement from "./common/Stream.structure";
+import Cookies from "js-cookie";
 
 const SearchPanel = ({
   streamName,
@@ -46,24 +48,30 @@ const CreateGroupModal = ({
   streamType: any;
   streams: any;
 }) => {
-  function createStream(
-    title: any,
-    author: any,
-    description: string,
-    type: any
-  ) {
-    if (title === "") return;
-    let newTask: IStream = {
-      id: crypto.randomUUID(),
-      title: title,
-      description: description,
-      author: author,
-      type: type,
-    };
+  async function createStream() {
+    if (streamTitle[0] === "") return;
+    let streamData = new FormData();
 
-    streams[1]((tasks: any) => {
-      return tasks.concat(newTask);
-    });
+    let userID: string = Cookies.get("userID")!;
+
+    streamData.append("name", streamTitle[0]);
+    streamData.append("userID", userID);
+    streamData.append("description", streamDesc[0]);
+    streamData.append("stream_type", streamType[0]);
+
+    fetch("http://localhost:2000/api/createStream", {
+      method: "POST",
+      credentials: "include",
+      body: streamData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        data.ok
+          ? (function () {
+              console.log(data.stream);
+            })()
+          : console.log(data.message);
+      });
 
     streamTitle[1]("");
   }
@@ -114,8 +122,12 @@ const CreateGroupModal = ({
                 value={streamType[0]}
                 onChange={(e) => streamType[1](e.target.value)}
               >
-                <option value="private">Private - Only you will be able to use the stream</option>
-                <option value="public">Public - Everyone in EduStream can see the stream</option>
+                <option value="private">
+                  Private - Only you will be able to use the stream
+                </option>
+                <option value="public">
+                  Public - Everyone in EduStream can see the stream
+                </option>
               </select>
             </div>
             <div className="modal-footer">
@@ -130,14 +142,7 @@ const CreateGroupModal = ({
                 type="button"
                 className="btn btn-success"
                 data-bs-dismiss="modal"
-                onClick={() =>
-                  createStream(
-                    streamTitle[0],
-                    "John Doe",
-                    streamDesc[0],
-                    streamType
-                  )
-                }
+                onClick={() => createStream()}
               >
                 Create
               </button>
@@ -152,18 +157,22 @@ const CreateGroupModal = ({
 export default function Streams() {
   let streamList: IStream[] = [
     {
-      id: crypto.randomUUID(),
-      title: "Study With ME!",
-      author: "John Doe",
+      stream_id: crypto.randomUUID(),
+      name: "Study With ME!",
+      author: {
+        display_name: "Moshi",
+      },
       description: "Keep syncing your study",
-      type: StreamType.Private,
+      stream_type: StreamType.Private,
     },
     {
-      id: crypto.randomUUID(),
-      title: "Sync Study",
-      author: "Maria",
+      stream_id: crypto.randomUUID(),
+      name: "Sync Study",
+      author: {
+        display_name: "Mozia",
+      },
       description: "Let's start with chemistry",
-      type: StreamType.Public,
+      stream_type: StreamType.Public,
     },
   ];
 
@@ -172,6 +181,23 @@ export default function Streams() {
   const [streamDesc, setStreamDesc] = useState("");
   const [streamType, setStreamType] = useState("private");
   const [streams, setStreams] = useState(streamList);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetch("http://localhost:2000/api/session", {
+      credentials: "include",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        !data.auth
+          ? navigate("/login")
+          : fetch("http://localhost:2000/api/getStreams")
+              .then((response) => response.json())
+              .then((streams) => {
+                console.log(streams);
+              });
+      });
+  }, []);
 
   return (
     <>
@@ -187,15 +213,15 @@ export default function Streams() {
       />
 
       <div className="list-group">
-        {streams.map(({ id, title, author, description, type }: IStream) => {
+        {streams.map(({ stream_id, name, author, description, stream_type }: IStream) => {
           return (
             <StreamElement
-              id={id}
+              stream_id={stream_id}
               author={author}
-              title={title}
+              name={name}
               description={description}
-              type={type}
-              key={id}
+              stream_type={stream_type}
+              key={stream_id}
             />
           );
         })}

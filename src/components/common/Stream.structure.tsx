@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { IStream } from "../../structures/types";
 
-export default function StreamElement({ author, title, description }: IStream) {
+export default function StreamElement({ author, name, description }: IStream) {
   const navigate = useNavigate();
   function goToStream(streamID: string) {
     navigate(`/stream/${streamID}`);
@@ -9,12 +9,12 @@ export default function StreamElement({ author, title, description }: IStream) {
 
   return (
     <div className="card text-left" style={{ marginTop: "20px" }}>
-      <div className="card-header">Stream by {author}</div>
+      <div className="card-header">Stream by {author.display_name}</div>
       <div className="card-body">
-        <h5 className="card-title">{title}</h5>
+        <h5 className="card-title">{name}</h5>
         <p className="card-text">{description}</p>
         <a
-          onClick={() => goToStream(title)}
+          onClick={() => goToStream(name)}
           className="btn btn-outline-success"
         >
           Go to stream

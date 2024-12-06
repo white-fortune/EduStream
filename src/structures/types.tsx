@@ -4,11 +4,13 @@ export enum StreamType {
 }
 
 export interface IStream {
-  id: string;
-  title: string;
-  author: string;
+  stream_id: string;
+  name: string;
+  author: {
+    display_name: string
+  }
   description: string;
-  type: StreamType;
+  stream_type: StreamType;
 }
 
 export enum State {

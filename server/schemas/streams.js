@@ -8,7 +8,8 @@ let StreamsSchema = new mongoose.Schema({
     },
     author: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true
+        required: true,
+        ref: "users"
     },
     description: {
         type: String,
