@@ -4,7 +4,7 @@ import { NavContext } from "../App";
 
 export default function NavBar() {
   let [current, setCurrent] = useState("");
-  let [regloginShow, setRegLoginShow] = useContext(NavContext)!
+  let [regloginShow, setRegLoginShow] = useContext(NavContext)!;
 
   let navigate = useNavigate();
   function handleNav(to: string) {
@@ -13,7 +13,7 @@ export default function NavBar() {
   }
 
   useEffect(() => {
-    fetch("http://localhost:2000/api/session", {
+    fetch("/api/session", {
       credentials: "include",
     })
       .then((response) => response.json())

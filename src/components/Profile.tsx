@@ -11,24 +11,23 @@ export default function Profile() {
     owned_group: [];
     followed_group: [];
   }>({ display_name: "", email: "", owned_group: [], followed_group: [] });
-  let [, setRegLoginShow] = useContext(NavContext)!
-
+  let [, setRegLoginShow] = useContext(NavContext)!;
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:2000/api/session", {
+    fetch("/api/session", {
       credentials: "include",
     })
       .then((response) => response.json())
       .then((data) => {
         !data.auth
           ? navigate("/login")
-          : fetch("http://localhost:2000/profile", { credentials: "include" })
+          : fetch("/profile", { credentials: "include" })
               .then((response) => response.json())
               .then((data) => {
                 setProfile(data);
-                setRegLoginShow(false)
+                setRegLoginShow(false);
               });
       });
   }, []);
@@ -43,14 +42,16 @@ export default function Profile() {
   }
 
   function logout() {
-    fetch("http://localhost:2000/logout", { credentials: 'include' })
-      .then(response => response.json())
-      .then(data => {
-        data.ok ? (function() {
-          navigate("/login")
-          setRegLoginShow(true)
-        })() : false
-      })
+    fetch("/logout", { credentials: "include" })
+      .then((response) => response.json())
+      .then((data) => {
+        data.ok
+          ? (function () {
+              navigate("/login");
+              setRegLoginShow(true);
+            })()
+          : false;
+      });
   }
 
   return (
@@ -73,7 +74,9 @@ export default function Profile() {
               </p>
             </div>
             <div className="p-2">
-              <button className="btn btn-danger" onClick={logout}>Logout</button>
+              <button className="btn btn-danger" onClick={logout}>
+                Logout
+              </button>
             </div>
           </div>
         </div>

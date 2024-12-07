@@ -10,7 +10,7 @@ export default function Login() {
   let navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:2000/api/session", {
+    fetch("/api/session", {
       credentials: "include",
     })
       .then((response) => response.json())
@@ -26,7 +26,7 @@ export default function Login() {
     userData.append("email", email);
     userData.append("password", password);
 
-    let response = await fetch("http://localhost:2000/login", {
+    let response = await fetch("/login", {
       method: "POST",
       credentials: "include",
       body: userData,

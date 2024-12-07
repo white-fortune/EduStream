@@ -17,6 +17,8 @@ const uri = process.env.MONGO_URI
 mongoose.connect(uri).then(() => {
     console.log(`Connected to database edustream`)
 })
+
+
 class ManageDB {
     async registerUser(userData) {
         await userModel.create(userData)
@@ -133,7 +135,9 @@ let streamDB = new Stream()
 const app = express()
 const port = process.env.PORT
 
-app.use(cors({ origin: "http://localhost:5173", credentials: true }))
+app.use(express.static('E:/Programs/js/EduStream/dist'));
+
+// app.use(cors({ origin: "http://localhost:2000", credentials: true }))
 app.use(cookieParser())
 app.use(session({
     secret: "a-secret-key",
@@ -302,6 +306,10 @@ app.get("/profile", async (req, res) => {
         let user = await db.showProfile(req.session.email)
         res.json(user)
     }
+})
+
+app.get("*", (req, res) => {
+    res.sendFile("E:/Programs/js/EduStream/dist/index.html")
 })
 
 

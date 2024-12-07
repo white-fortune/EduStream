@@ -47,7 +47,7 @@ function AddTaskModal({
       taskData.append("description", controlDesc[0]);
       taskData.append("state", controlState[0]);
 
-      let response = await fetch("http://localhost:2000/api/addTask", {
+      let response = await fetch("/api/addTask", {
         method: "POST",
         credentials: "include",
         body: taskData,
@@ -178,13 +178,13 @@ export default function Stream() {
   const userID: string = Cookies.get("userID")!;
 
   useEffect(() => {
-    fetch(`http://localhost:2000/api/getStreamMetaData?streamID=${stream_id}`)
+    fetch(`/api/getStreamMetaData?streamID=${stream_id}`)
       .then((response) => response.json())
       .then((data) => {
         setName(data.name);
       });
 
-    fetch(`http://localhost:2000/api/getTasks?streamID=${stream_id}`)
+    fetch(`/api/getTasks?streamID=${stream_id}`)
       .then((response) => response.json())
       .then((data) => {
         setTasks((prev_tasks) => {
@@ -192,17 +192,13 @@ export default function Stream() {
         });
       });
 
-    fetch(
-      `http://localhost:2000/api/stream/isFollowed?userID=${userID}&streamID=${stream_id}`
-    )
+    fetch(`/api/stream/isFollowed?userID=${userID}&streamID=${stream_id}`)
       .then((response) => response.json())
       .then((data) => {
         setFollow(data.follow);
       });
 
-    fetch(
-      `http://localhost:2000/api/stream/isOwned?userID=${userID}&streamID=${stream_id}`
-    )
+    fetch(`/api/stream/isOwned?userID=${userID}&streamID=${stream_id}`)
       .then((response) => response.json())
       .then((data) => {
         setAuthor(data.own);
@@ -228,9 +224,7 @@ export default function Stream() {
   }
 
   async function followStream() {
-    fetch(
-      `http://localhost:2000/api/stream/follow?userID=${userID}&streamID=${stream_id}`
-    )
+    fetch(`/api/stream/follow?userID=${userID}&streamID=${stream_id}`)
       .then((response) => response.json())
       .then((data) => {
         data.ok ? setFollow(true) : null;
@@ -238,9 +232,7 @@ export default function Stream() {
   }
 
   function unfollowStream() {
-    fetch(
-      `http://localhost:2000/api/stream/unfollow?userID=${userID}&streamID=${stream_id}`
-    )
+    fetch(`/api/stream/unfollow?userID=${userID}&streamID=${stream_id}`)
       .then((response) => response.json())
       .then((data) => {
         data.ok ? setFollow(false) : null;
@@ -251,11 +243,11 @@ export default function Stream() {
     setTasks((tasks) => {
       return tasks.filter((task) => task.task_id !== id);
     });
-    await fetch(`http://localhost:2000/api/task/delete?taskID=${id}`);
+    await fetch(`/api/task/delete?taskID=${id}`);
   }
 
   function markDone(id: string) {
-    fetch(`http://localhost:2000/api/task/markDone?taskID=${id}`)
+    fetch(`/api/task/markDone?taskID=${id}`)
       .then((response) => response.json())
       .then((data) => {
         data.ok
@@ -276,7 +268,7 @@ export default function Stream() {
       return onGoingCount.length === 0
         ? tasks.map((task) => {
             if (task.task_id === id) {
-              fetch(`http://localhost:2000/api/task/start?taskID=${id}`);
+              fetch(`/api/task/start?taskID=${id}`);
               return Object.assign({}, task, { state: State.OnGoing });
             }
             return task;

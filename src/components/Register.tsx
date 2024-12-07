@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Alert } from "./common/Alert.structure";
 import { IAlert } from "../structures/types";
 
-const server = "http://localhost:2000";
+const server = "";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -13,7 +13,7 @@ export default function Register() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:2000/api/session", {
+    fetch("/api/session", {
       credentials: "include",
     })
       .then((response) => response.json())

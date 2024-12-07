@@ -64,7 +64,7 @@ const CreateGroupModal = ({
     streamData.append("description", streamDesc[0]);
     streamData.append("stream_type", streamType[0]);
 
-    fetch("http://localhost:2000/api/createStream", {
+    fetch("/api/createStream", {
       method: "POST",
       credentials: "include",
       body: streamData,
@@ -180,14 +180,14 @@ export default function Streams() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:2000/api/session", {
+    fetch("/api/session", {
       credentials: "include",
     })
       .then((response) => response.json())
       .then((data) => {
         !data.auth
           ? navigate("/login")
-          : fetch("http://localhost:2000/api/getStreams")
+          : fetch("/api/getStreams")
               .then((response) => response.json())
               .then(({ streams }) => {
                 setStreams((prev_streams) => {
