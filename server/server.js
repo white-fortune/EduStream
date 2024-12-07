@@ -138,14 +138,15 @@ app.use(cookieParser())
 app.use(session({
     secret: "a-secret-key",
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     store: MongoStore.create({
-        mongoUrl: uri
+        mongoUrl: uri,
+        ttl: 60 * 60 * 48
     }),
     cookie: {
         httpOnly: true,
         secure: false,
-        maxAge: 1000 * 60 * 60 * 60
+        maxAge: 1000 * 60 * 60 * 48
     }
 }))
 

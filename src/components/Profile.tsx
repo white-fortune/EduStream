@@ -125,7 +125,7 @@ export default function Profile() {
         ) : (
           <h1>Don't you study??</h1>
         )
-      ) : profile.owned_group.length != 0 ? (
+      ) : profile.followed_group.length !== 0 ? (
         profile.followed_group.map(
           ({ stream_id, author, name, description, stream_type }: IStream) => {
             return (
