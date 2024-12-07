@@ -6,12 +6,19 @@ import session from 'express-session'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import MongoStore from 'connect-mongo'
+import { dirname } from 'path'
+import { fileURLToPath } from 'url';
+import path from 'path'
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 
 import userModel from './schemas/users.js'
 import streamModel from './schemas/streams.js'
 import taskModel from './schemas/tasks.js'
 
-dotenv.config({ path: "E:/Programs/js/EduStream/server/.env" })
+dotenv.config({ path: path.join(__dirname, "/.env") })
 
 const uri = process.env.MONGO_URI
 mongoose.connect(uri).then(() => {
@@ -135,7 +142,7 @@ let streamDB = new Stream()
 const app = express()
 const port = process.env.PORT
 
-app.use(express.static('E:/Programs/js/EduStream/dist'));
+app.use(express.static(path.join(__dirname, "../dist")));
 
 // app.use(cors({ origin: "http://localhost:2000", credentials: true }))
 app.use(cookieParser())
