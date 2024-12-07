@@ -165,9 +165,9 @@ export default function Stream() {
       title: "",
       state: State.BackLog,
       description: "",
-      date: new Date()
-    }
-  ]
+      date: new Date(),
+    },
+  ];
 
   const { stream_id } = useParams<{ stream_id: string }>();
   const [taskTitle, setTaskTitle] = useState("");
@@ -219,20 +219,27 @@ export default function Stream() {
     setFollow(false);
   }
 
-  function deleteTask(id: string) {
+  async function deleteTask(id: string) {
     setTasks((tasks) => {
       return tasks.filter((task) => task.task_id !== id);
     });
+    await fetch(`http://localhost:2000/api/task/delete?taskID=${id}`);
   }
 
   function markDone(id: string) {
-    setTasks((tasks) => {
-      return tasks.map((task) => {
-        if (task.task_id == id)
-          return Object.assign({}, task, { state: State.Done });
-        return task;
+    fetch(`http://localhost:2000/api/task/markDone?taskID=${id}`)
+      .then((response) => response.json())
+      .then((data) => {
+        data.ok
+          ? setTasks((tasks) => {
+              return tasks.map((task) => {
+                if (task.task_id == id)
+                  return Object.assign({}, task, { state: State.Done });
+                return task;
+              });
+            })
+          : null;
       });
-    });
   }
 
   function startTask(id: string) {
@@ -240,8 +247,10 @@ export default function Stream() {
       let onGoingCount = tasks.filter((task) => task.state === State.OnGoing);
       return onGoingCount.length === 0
         ? tasks.map((task) => {
-            if (task.task_id === id)
+            if (task.task_id === id) {
+              fetch(`http://localhost:2000/api/task/start?taskID=${id}`);
               return Object.assign({}, task, { state: State.OnGoing });
+            }
             return task;
           })
         : tasks;
@@ -281,97 +290,99 @@ export default function Stream() {
           </div>
         )}
       </div>
-      {tasks.length == 1 ? <h1>No tasks are added yet!</h1> : null }
+      {tasks.length == 1 ? <h1>No tasks are added yet!</h1> : null}
       <div className="list-group">
-        {tasks.filter(task => task.task_id !== "0").map(({ task_id, title, description, state, date }: ITasks) => {
-          return (
-            <div
-              className="list-group-item list-group-item-action"
-              aria-current="true"
-              key={task_id}
-            >
-              <ShowTitle title={title}>
+        {tasks
+          .filter((task) => task.task_id !== "0")
+          .map(({ task_id, title, description, state, date }: ITasks) => {
+            return (
+              <div
+                className="list-group-item list-group-item-action"
+                aria-current="true"
+                key={task_id}
+              >
+                <ShowTitle title={title}>
+                  <div className="d-flex">
+                    <div className="p-2 flex-grow-1">
+                      <h6 className="mb-1">{getTitle(title)}</h6>
+                    </div>
+                    {new Date(date).toLocaleDateString()} at{" "}
+                    {new Date(date).toLocaleTimeString()}
+                  </div>
+                </ShowTitle>
+
                 <div className="d-flex">
                   <div className="p-2 flex-grow-1">
-                    <h6 className="mb-1">{getTitle(title)}</h6>
+                    <small>
+                      <b>State:</b> {getState(state)}
+                      <br />
+                    </small>
                   </div>
-                  {new Date(date).toLocaleDateString()} at{" "}
-                  {new Date(date).toLocaleTimeString()}
-                </div>
-              </ShowTitle>
 
-              <div className="d-flex">
-                <div className="p-2 flex-grow-1">
-                  <small>
-                    <b>State:</b> {getState(state)}
-                    <br />
-                  </small>
-                </div>
-
-                <div className="p-2">
-                  <div className="dropdown">
-                    <div className="btn-group">
+                  <div className="p-2">
+                    <div className="dropdown">
+                      <div className="btn-group">
+                        <button
+                          className="btn btn-success"
+                          type="button"
+                          data-bs-toggle="collapse"
+                          data-bs-target={"#" + task_id}
+                          aria-expanded="false"
+                        >
+                          Desc
+                        </button>
+                      </div>
                       <button
-                        className="btn btn-success"
+                        className="btn btn-secondary dropdown-toggle"
                         type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target={"#" + task_id}
+                        data-bs-toggle="dropdown"
                         aria-expanded="false"
-                      >
-                        Desc
-                      </button>
-                    </div>
-                    <button
-                      className="btn btn-secondary dropdown-toggle"
-                      type="button"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    />
-                    <ul className="dropdown-menu">
-                      {state === State.BackLog ? (
-                        <li>
-                          <a className="dropdown-item">
-                            <button
-                              className="btn btn-outline-info"
-                              onClick={() => startTask(task_id)}
-                            >
-                              Start Task
-                            </button>
-                          </a>
-                        </li>
-                      ) : state === State.OnGoing ? (
-                        <li>
-                          <a className="dropdown-item">
-                            <button
-                              className="btn btn-outline-success"
-                              onClick={() => markDone(task_id)}
-                            >
-                              Mark Done
-                            </button>
-                          </a>
-                        </li>
-                      ) : null}
+                      />
+                      <ul className="dropdown-menu">
+                        {state === State.BackLog ? (
+                          <li>
+                            <a className="dropdown-item">
+                              <button
+                                className="btn btn-outline-info"
+                                onClick={() => startTask(task_id)}
+                              >
+                                Start Task
+                              </button>
+                            </a>
+                          </li>
+                        ) : state === State.OnGoing ? (
+                          <li>
+                            <a className="dropdown-item">
+                              <button
+                                className="btn btn-outline-success"
+                                onClick={() => markDone(task_id)}
+                              >
+                                Mark Done
+                              </button>
+                            </a>
+                          </li>
+                        ) : null}
 
-                      <li>
-                        <a className="dropdown-item">
-                          <button
-                            className="btn btn-outline-danger"
-                            onClick={() => deleteTask(task_id)}
-                          >
-                            Delete Task
-                          </button>
-                        </a>
-                      </li>
-                    </ul>
+                        <li>
+                          <a className="dropdown-item">
+                            <button
+                              className="btn btn-outline-danger"
+                              onClick={() => deleteTask(task_id)}
+                            >
+                              Delete Task
+                            </button>
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
+                <div className="collapse" id={task_id}>
+                  <div className="card card-body">{description}</div>
+                </div>
               </div>
-              <div className="collapse" id={task_id}>
-                <div className="card card-body">{description}</div>
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
       </div>
     </>
   );

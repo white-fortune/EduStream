@@ -57,7 +57,7 @@ class ManageDB {
     }
 
     async getStreams() {
-        let streams = await streamModel.find({ stream_type: "public"}).populate('author', 'display_name')
+        let streams = await streamModel.find({ stream_type: "public" }).populate('author', 'display_name')
         return streams
     }
 
@@ -73,6 +73,23 @@ class ManageDB {
     }
 }
 let db = new ManageDB()
+
+class TaskState {
+    async markDone(task_id) {
+        let task = await taskModel.updateOne({ task_id: task_id }, { state: "done" })
+        return task
+    }
+
+    async startTask(task_id) {
+        let task = await taskModel.updateOne({ task_id: task_id }, { state: "on-going" })
+        return task
+    }
+
+    async deleteTask(task_id) {
+        await taskModel.deleteOne({ task_id: task_id })
+    }
+}
+let taskDB = new TaskState()
 
 const app = express()
 const port = process.env.PORT
@@ -132,6 +149,29 @@ app.get("/api/getTasks", async (req, res) => {
     let tasks = await db.getTasks(stream_id)
     res.json(tasks)
 })
+app.get("/api/task/delete", async (req, res) => {
+    let task_id = req.query.taskID
+    await taskDB.deleteTask(task_id)
+})
+app.get("/api/task/markDone", async (req, res) => {
+    try {
+        let task_id = req.query.taskID
+        await taskDB.markDone(task_id)
+        res.json({ ok: true })
+    } catch (error) {
+        res.json({ ok: false })
+    }
+})
+app.get("/api/task/start", async (req, res) => {
+    try {
+        let task_id = req.query.taskID
+        await taskDB.startTask(task_id)
+        res.json({ ok: true })
+    } catch (error) {
+        res.json({ ok: false })
+    }
+})
+
 
 app.post("/register", multer().none(), async (req, res) => {
     if (req.session.email) {
