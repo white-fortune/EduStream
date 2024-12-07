@@ -37,7 +37,22 @@ class ManageDB {
     }
 
     async showProfile(email) {
-        let user = await userModel.findOne({ email: email }, { email: 1, display_name: 1 })
+        let user = await userModel.findOne(
+            { email: email }, 
+            { email: 1, display_name: 1, owned_group: 1, followed_group: 1 }
+        ).populate([
+            {
+                path: 'owned_group followed_group',
+                populate: {
+                    path: 'author',
+                    select: 'display_name',
+                }
+            },
+            // {
+            //     path: 'followed_group',
+            //     select: 'name,author,description,stream_id'
+            // }
+        ])
         return user
     }
 
@@ -115,6 +130,7 @@ class Stream {
     }
 }
 let streamDB = new Stream()
+
 
 const app = express()
 const port = process.env.PORT

@@ -21,12 +21,12 @@ let UsersSchema = new mongoose.Schema({
     owned_group: {
         type: [mongoose.Schema.Types.ObjectId],
         default: [],
-        ref: "groups"
+        ref: "streams"
     },
     followed_group: {
         type: [mongoose.Schema.Types.ObjectId],
         default: [],
-        ref: "groups"
+        ref: "streams"
     }
 })
 

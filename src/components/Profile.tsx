@@ -3,14 +3,57 @@ import { IStream, StreamType } from "../structures/types";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+/* 
+{
+  _id: new ObjectId('6753e0efc5375a9d81c3d3ad'),
+  email: 'hello@hello.com',
+  display_name: 'pineapple_juice',
+  owned_group: [
+    {
+      _id: new ObjectId('6753e1e7528efe0d63a2558c'),
+      name: 'This is a test stream',
+      author: [Object],
+      description: "A test stream with no real tasks in it, don't follow",
+      stream_type: 'public',
+      stream_id: 'this-is-a-test-stream-633db82741f8',
+      __v: 0
+    },
+    {
+      _id: new ObjectId('6753e66ec14aaa63cb524c15'),
+      name: 'This is another stream',
+      author: [Object],
+      description: 'Hello world',
+      stream_type: 'public',
+      stream_id: 'this-is-another-stream-1f408792e042',
+      __v: 0
+    }
+  ],
+  followed_group: [
+    {
+      _id: new ObjectId('6753e688c14aaa63cb524c1e'),
+      name: 'This is apple',
+      author: [Object],
+      description: 'Bye world',
+      stream_type: 'public',
+      stream_id: 'this-is-apple-80c2c10bb1e6',
+      __v: 0
+    }
+  ]
+} 
+*/
+
 export default function Profile() {
   const [profile, setProfile] = useState<{
     display_name: string;
     email: string;
-  }>({ display_name: "User", email: "user@user.com" });
+    owned_group: [];
+    followed_group: [];
+  }>({display_name: "", email: "", owned_group: [], followed_group: []});
+
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log(`Second`)
     fetch("http://localhost:2000/api/session", {
       credentials: "include",
     })
@@ -21,14 +64,14 @@ export default function Profile() {
           : fetch("http://localhost:2000/profile", { credentials: "include" })
               .then((response) => response.json())
               .then((data) => {
+                // console.log(data)
                 setProfile(data);
               });
       });
   }, []);
 
-
-  let display_name: string = profile.display_name;
-  let email: string = profile.email;
+  let display_name: string = profile!.display_name;
+  let email: string = profile!.email;
 
   const [viewStream, setViewStream] = useState("owned");
 
@@ -36,30 +79,24 @@ export default function Profile() {
     setViewStream(view);
   }
 
-  let streamList: IStream[] = [
-    {
-      id: crypto.randomUUID(),
-      title: "Study With ME!",
-      author: "John Doe",
-      description: "Keep syncing your study",
-      type: StreamType.Private,
-    },
-    {
-      id: crypto.randomUUID(),
-      title: "Sync Study",
-      author: "Maria",
-      description: "Let's start with chemistry",
-      type: StreamType.Public,
-    },
-  ];
 
-  let followedList: IStream[] = [
+  let streamList = [
     {
-      id: crypto.randomUUID(),
-      title: "Hello!",
-      author: "Moshi moshi",
+      stream_id: crypto.randomUUID(),
+      name: "Hello!",
+      author: { display_name: "Moshi moshi" },
       description: "This is a stream I follow",
-      type: StreamType.Public,
+      stream_type: StreamType.Public,
+    },
+  ]
+
+  let followedList = [
+    {
+      stream_id: crypto.randomUUID(),
+      name: "Hello!",
+      author: { display_name: "Moshi moshi" },
+      description: "This is a stream I follow",
+      stream_type: StreamType.Public,
     },
   ];
 
@@ -100,30 +137,42 @@ export default function Profile() {
       </ul>
 
       {viewStream == "owned"
-        ? streamList.map(
-            ({ id, author, title, description, type }: IStream) => {
+        ? profile.owned_group.map(
+            ({
+              stream_id,
+              author,
+              name,
+              description,
+              stream_type,
+            }: IStream) => {
               return (
                 <StreamElement
-                  id={id}
+                  stream_id={stream_id}
                   author={author}
                   description={description}
-                  title={title}
-                  type={type}
-                  key={id}
+                  name={name}
+                  stream_type={stream_type}
+                  key={stream_id}
                 />
               );
             }
           )
-        : followedList.map(
-            ({ id, author, title, description, type }: IStream) => {
+        : profile.followed_group.map(
+            ({
+              stream_id,
+              author,
+              name,
+              description,
+              stream_type,
+            }: IStream) => {
               return (
                 <StreamElement
-                  id={id}
+                  stream_id={stream_id}
                   author={author}
                   description={description}
-                  title={title}
-                  type={type}
-                  key={id}
+                  name={name}
+                  stream_type={stream_type}
+                  key={stream_id}
                 />
               );
             }
