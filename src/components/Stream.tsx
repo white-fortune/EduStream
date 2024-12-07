@@ -176,6 +176,7 @@ export default function Stream() {
   const [tasks, setTasks] = useState<ITasks[]>(initialTasks);
   const [follow, setFollow] = useState<boolean>(false);
   const [name, setName] = useState("");
+  const userID: string = Cookies.get("userID")!;
 
   useEffect(() => {
     fetch(`http://localhost:2000/api/getStreamMetaData?streamID=${stream_id}`)
@@ -191,6 +192,12 @@ export default function Stream() {
           return prev_tasks?.concat(data);
         });
       });
+
+    fetch(`http://localhost:2000/api/stream/isFollowed?userID=${userID}&streamID=${stream_id}`)
+      .then(response => response.json())
+      .then(data => {
+        setFollow(data.follow)
+      })
   }, []);
 
   const popover = (title: string) => (
@@ -211,7 +218,6 @@ export default function Stream() {
     return title.length < 30 ? title : title.slice(0, 30) + "...";
   }
 
-  let userID: string = Cookies.get("userID")!;
   async function followStream() {
     fetch(
       `http://localhost:2000/api/stream/follow?userID=${userID}&streamID=${stream_id}`

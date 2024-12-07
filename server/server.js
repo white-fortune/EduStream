@@ -95,12 +95,17 @@ let taskDB = new TaskState()
 class Stream {
     async followStream(userID, stream_id) {
         let stream = (await db.getStreamMetaData(stream_id))._id.toString()
-        await userModel.updateOne({ userID: userID }, { $push: { followed_group: stream } })
+        await userModel.updateOne({ userID: userID }, { $addToSet: { followed_group: stream } })
     }
 
     async unfollowStream(userID, stream_id) {
         let stream = (await db.getStreamMetaData(stream_id))._id.toString()
         await userModel.updateOne({ userID: userID }, { $pull: { followed_group: stream } })
+    }
+
+    async isFollowed(userID, stream_id) {
+        let followed_streams = (await userModel.find({ userID: userID }, { followed_group: 1, _id: 0 }))[0].followed_group
+        return followed_streams.includes(stream_id)
     }
 }
 let streamDB = new Stream()
@@ -196,8 +201,15 @@ app.get("/api/stream/unfollow", async (req, res) => {
     let userID = req.query.userID
     let streamID = req.query.streamID
 
-    await streamDB.followStream(userID, streamID)
+    await streamDB.unfollowStream(userID, streamID)
     res.json({ ok: true })
+})
+app.get("/api/stream/isFollowed", async (req, res) => {
+    let userID = req.query.userID
+    let streamID = (await db.getStreamMetaData(req.query.streamID))._id
+    let isFollowed = await streamDB.isFollowed(userID, streamID)
+
+    res.json({ follow: isFollowed })
 })
 
 
