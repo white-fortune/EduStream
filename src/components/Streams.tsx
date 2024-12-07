@@ -224,7 +224,7 @@ export default function Streams() {
       />
 
       <div className="list-group">
-        {streams.length != 1
+        {streams.length != 0
           ? streams
               .filter((stream) => stream.stream_id != "0")
               .map(
