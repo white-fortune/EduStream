@@ -1,15 +1,25 @@
 import { useNavigate } from "react-router-dom";
-import { IStream } from "../../structures/types";
+import { IStream, StreamType } from "../../structures/types";
 
 export default function StreamElement({
   author,
   name,
   description,
   stream_id,
+  stream_type,
 }: IStream) {
   const navigate = useNavigate();
   function goToStream(streamID: string) {
     navigate(`/stream/${streamID}`);
+  }
+
+  function getStream(stream_type: StreamType) {
+    switch (stream_type) {
+      case "private":
+        return <span className="badge text-bg-warning">{stream_type}</span>;
+      case "public":
+        return <span className="badge text-bg-success">{stream_type}</span>;
+    }
   }
 
   return (
@@ -24,6 +34,9 @@ export default function StreamElement({
         >
           Go to stream
         </a>
+      </div>
+      <div className="card-footer text-body-secondary">
+        Type: {getStream(stream_type)}
       </div>
     </div>
   );

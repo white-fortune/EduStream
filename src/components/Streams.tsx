@@ -67,12 +67,13 @@ const CreateGroupModal = ({
       .then((response) => response.json())
       .then((data) => {
         data.ok
-          ? (function () {
-              console.log(data.stream);
-              streams[1]((prev_streams: any) => {
-                return prev_streams.concat(data.stream)
-              })
-            })()
+          ? streamType[0] == "public"
+            ? (function () {
+                streams[1]((prev_streams: any) => {
+                  return prev_streams.concat(data.stream);
+                });
+              })()
+            : null
           : console.log(data.message);
       });
 
@@ -179,7 +180,7 @@ export default function Streams() {
               .then((response) => response.json())
               .then(({ streams }) => {
                 setStreams((prev_streams) => {
-                  return prev_streams.concat(streams)
+                  return prev_streams.concat(streams);
                 });
               });
       });

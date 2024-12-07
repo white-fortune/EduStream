@@ -1,6 +1,6 @@
 export enum StreamType {
-  Public,
-  Private,
+  Public="public",
+  Private="private",
 }
 
 export interface IStream {
