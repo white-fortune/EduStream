@@ -1,7 +1,8 @@
 import StreamElement from "./common/Stream.structure";
 import { IStream } from "../structures/types";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { NavContext } from "../App";
 
 export default function Profile() {
   const [profile, setProfile] = useState<{
@@ -10,6 +11,8 @@ export default function Profile() {
     owned_group: [];
     followed_group: [];
   }>({ display_name: "", email: "", owned_group: [], followed_group: [] });
+  let [regloginShow, setRegLoginShow] = useContext(NavContext)!
+
 
   const navigate = useNavigate();
 
@@ -25,6 +28,7 @@ export default function Profile() {
               .then((response) => response.json())
               .then((data) => {
                 setProfile(data);
+                setRegLoginShow(false)
               });
       });
   }, []);
@@ -38,6 +42,17 @@ export default function Profile() {
     setViewStream(view);
   }
 
+  function logout() {
+    fetch("http://localhost:2000/logout", { credentials: 'include' })
+      .then(response => response.json())
+      .then(data => {
+        data.ok ? (function() {
+          navigate("/login")
+          setRegLoginShow(true)
+        })() : false
+      })
+  }
+
   return (
     <>
       <div
@@ -46,10 +61,21 @@ export default function Profile() {
       >
         <div className="card-header text-center">This is ME!</div>
         <div className="card-body">
-          <h5 className="card-title">I am {display_name}</h5>
-          <p className="card-text">
-            You can email me at <b>{email}</b>
-          </p>
+          <div className="d-flex">
+            <div className="p-2 flex-grow-1">
+              <h5 className="card-title">I am {display_name}</h5>
+            </div>
+          </div>
+          <div className="d-flex">
+            <div className="p-2 flex-grow-1">
+              <p className="card-text">
+                You can email me at <b>{email}</b>
+              </p>
+            </div>
+            <div className="p-2">
+              <button className="btn btn-danger" onClick={logout}>Logout</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -114,8 +140,9 @@ export default function Profile() {
             );
           }
         )
-      ) : <h1>Follow some, people aren't that bad!</h1>
-      }
+      ) : (
+        <h1>Follow some, people aren't that bad!</h1>
+      )}
     </>
   );
 }

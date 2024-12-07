@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { NavContext } from "../App";
 
 export default function NavBar() {
   let [current, setCurrent] = useState("");
-  let [regloginShow, setRegLoginShow] = useState<boolean>(true);
+  let [regloginShow, setRegLoginShow] = useContext(NavContext)!
 
   let navigate = useNavigate();
   function handleNav(to: string) {
@@ -11,33 +12,21 @@ export default function NavBar() {
     navigate(`/${to}`);
   }
 
+  useEffect(() => {
+    fetch("http://localhost:2000/api/session", {
+      credentials: "include",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setRegLoginShow(!data.auth);
+      });
+  }, []);
+
   return (
     <>
       <div className="card text-middle">
         <div className="card-header" style={{ marginBottom: "20px" }}>
           <ul className="nav nav-tabs card-header-tabs">
-            <li className="nav-item">
-              <a
-                className={
-                  current === "streams" ? "nav-link active" : "nav-link"
-                }
-                onClick={() => handleNav("streams")}
-                href="#"
-              >
-                Streams
-              </a>
-            </li>
-            <li className="nav-item">
-              <a
-                className={
-                  current === "profile" ? "nav-link active" : "nav-link"
-                }
-                href="#"
-                onClick={() => handleNav("profile")}
-              >
-                Profile
-              </a>
-            </li>
             {regloginShow ? (
               <>
                 <li className="nav-item">
@@ -63,7 +52,32 @@ export default function NavBar() {
                   </a>
                 </li>
               </>
-            ) : null}
+            ) : (
+              <>
+                <li className="nav-item">
+                  <a
+                    className={
+                      current === "streams" ? "nav-link active" : "nav-link"
+                    }
+                    onClick={() => handleNav("streams")}
+                    href="#"
+                  >
+                    Streams
+                  </a>
+                </li>
+                <li className="nav-item">
+                  <a
+                    className={
+                      current === "profile" ? "nav-link active" : "nav-link"
+                    }
+                    href="#"
+                    onClick={() => handleNav("profile")}
+                  >
+                    Profile
+                  </a>
+                </li>
+              </>
+            )}
           </ul>
         </div>
       </div>

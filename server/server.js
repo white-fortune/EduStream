@@ -288,6 +288,12 @@ app.post("/login", multer().none(), async (req, res) => {
     }
 })
 
+app.get("/logout", (req, res) => {
+    req.session.destroy()
+    res.clearCookie('userID')
+    res.json({ ok: true })
+})
+
 app.get("/profile", async (req, res) => {
     if (!req.session.email) {
         res.redirect("/login")
