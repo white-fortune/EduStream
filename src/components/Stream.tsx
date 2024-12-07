@@ -157,8 +157,6 @@ function AddTaskModal({
 }
 
 export default function Stream() {
-  let author: boolean = false;
-
   let initialTasks: ITasks[] = [
     {
       task_id: "0",
@@ -175,6 +173,7 @@ export default function Stream() {
   const [desc, setDesc] = useState("");
   const [tasks, setTasks] = useState<ITasks[]>(initialTasks);
   const [follow, setFollow] = useState<boolean>(false);
+  const [author, setAuthor] = useState<boolean>(false)
   const [name, setName] = useState("");
   const userID: string = Cookies.get("userID")!;
 
@@ -198,6 +197,13 @@ export default function Stream() {
       .then(data => {
         setFollow(data.follow)
       })
+
+    fetch(`http://localhost:2000/api/stream/isOwned?userID=${userID}&streamID=${stream_id}`)
+      .then(response => response.json())
+      .then(data => {
+        setAuthor(data.own)
+      })
+    
   }, []);
 
   const popover = (title: string) => (

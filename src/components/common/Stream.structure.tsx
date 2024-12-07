@@ -1,7 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { IStream } from "../../structures/types";
 
-export default function StreamElement({ author, name, description, stream_id }: IStream) {
+export default function StreamElement({
+  author,
+  name,
+  description,
+  stream_id,
+}: IStream) {
   const navigate = useNavigate();
   function goToStream(streamID: string) {
     navigate(`/stream/${streamID}`);
@@ -19,9 +24,6 @@ export default function StreamElement({ author, name, description, stream_id }: 
         >
           Go to stream
         </a>
-      </div>
-      <div className="card-footer text-body-secondary">
-        Staus: <span className="badge text-bg-success">Followed</span>
       </div>
     </div>
   );

@@ -43,6 +43,7 @@ class ManageDB {
 
     async createStream(streamData) {
         let stream = await streamModel.create(streamData)
+        await userModel.updateOne({ _id: streamData.author }, { $push: { owned_group: stream._id } })
         return stream.populate('author', 'display_name')
     }
 
@@ -106,6 +107,11 @@ class Stream {
     async isFollowed(userID, stream_id) {
         let followed_streams = (await userModel.find({ userID: userID }, { followed_group: 1, _id: 0 }))[0].followed_group
         return followed_streams.includes(stream_id)
+    }
+
+    async isOwned(userID, stream_id) {
+        let owned_streams = (await userModel.find({ userID: userID }, { owned_group: 1, _id: 0 }))[0].owned_group
+        return owned_streams.includes(stream_id)
     }
 }
 let streamDB = new Stream()
@@ -210,6 +216,13 @@ app.get("/api/stream/isFollowed", async (req, res) => {
     let isFollowed = await streamDB.isFollowed(userID, streamID)
 
     res.json({ follow: isFollowed })
+})
+app.get("/api/stream/isOwned", async (req, res) => {
+    let userID = req.query.userID
+    let streamID = (await db.getStreamMetaData(req.query.streamID))._id
+    let isOwned = await streamDB.isOwned(userID, streamID)
+
+    res.json({ own: isOwned })
 })
 
 
