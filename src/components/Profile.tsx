@@ -1,46 +1,8 @@
 import StreamElement from "./common/Stream.structure";
-import { IStream, StreamType } from "../structures/types";
+import { IStream } from "../structures/types";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-/* 
-{
-  _id: new ObjectId('6753e0efc5375a9d81c3d3ad'),
-  email: 'hello@hello.com',
-  display_name: 'pineapple_juice',
-  owned_group: [
-    {
-      _id: new ObjectId('6753e1e7528efe0d63a2558c'),
-      name: 'This is a test stream',
-      author: [Object],
-      description: "A test stream with no real tasks in it, don't follow",
-      stream_type: 'public',
-      stream_id: 'this-is-a-test-stream-633db82741f8',
-      __v: 0
-    },
-    {
-      _id: new ObjectId('6753e66ec14aaa63cb524c15'),
-      name: 'This is another stream',
-      author: [Object],
-      description: 'Hello world',
-      stream_type: 'public',
-      stream_id: 'this-is-another-stream-1f408792e042',
-      __v: 0
-    }
-  ],
-  followed_group: [
-    {
-      _id: new ObjectId('6753e688c14aaa63cb524c1e'),
-      name: 'This is apple',
-      author: [Object],
-      description: 'Bye world',
-      stream_type: 'public',
-      stream_id: 'this-is-apple-80c2c10bb1e6',
-      __v: 0
-    }
-  ]
-} 
-*/
 
 export default function Profile() {
   const [profile, setProfile] = useState<{
@@ -78,27 +40,6 @@ export default function Profile() {
   function handleStreamView(view: "owned" | "followed") {
     setViewStream(view);
   }
-
-
-  let streamList = [
-    {
-      stream_id: crypto.randomUUID(),
-      name: "Hello!",
-      author: { display_name: "Moshi moshi" },
-      description: "This is a stream I follow",
-      stream_type: StreamType.Public,
-    },
-  ]
-
-  let followedList = [
-    {
-      stream_id: crypto.randomUUID(),
-      name: "Hello!",
-      author: { display_name: "Moshi moshi" },
-      description: "This is a stream I follow",
-      stream_type: StreamType.Public,
-    },
-  ];
 
   return (
     <>

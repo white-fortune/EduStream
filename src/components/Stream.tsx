@@ -173,7 +173,7 @@ export default function Stream() {
   const [desc, setDesc] = useState("");
   const [tasks, setTasks] = useState<ITasks[]>(initialTasks);
   const [follow, setFollow] = useState<boolean>(false);
-  const [author, setAuthor] = useState<boolean>(false)
+  const [author, setAuthor] = useState<boolean>(false);
   const [name, setName] = useState("");
   const userID: string = Cookies.get("userID")!;
 
@@ -192,18 +192,21 @@ export default function Stream() {
         });
       });
 
-    fetch(`http://localhost:2000/api/stream/isFollowed?userID=${userID}&streamID=${stream_id}`)
-      .then(response => response.json())
-      .then(data => {
-        setFollow(data.follow)
-      })
+    fetch(
+      `http://localhost:2000/api/stream/isFollowed?userID=${userID}&streamID=${stream_id}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        setFollow(data.follow);
+      });
 
-    fetch(`http://localhost:2000/api/stream/isOwned?userID=${userID}&streamID=${stream_id}`)
-      .then(response => response.json())
-      .then(data => {
-        setAuthor(data.own)
-      })
-    
+    fetch(
+      `http://localhost:2000/api/stream/isOwned?userID=${userID}&streamID=${stream_id}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        setAuthor(data.own);
+      });
   }, []);
 
   const popover = (title: string) => (
@@ -345,60 +348,63 @@ export default function Stream() {
                   </div>
 
                   <div className="p-2">
-                    <div className="dropdown">
-                      <div className="btn-group">
-                        <button
-                          className="btn btn-success"
-                          type="button"
-                          data-bs-toggle="collapse"
-                          data-bs-target={"#" + task_id}
-                          aria-expanded="false"
-                        >
-                          Desc
-                        </button>
-                      </div>
+                    <div className="btn-group">
                       <button
-                        className="btn btn-secondary dropdown-toggle"
+                        className="btn btn-success"
                         type="button"
-                        data-bs-toggle="dropdown"
+                        data-bs-toggle="collapse"
+                        data-bs-target={"#" + task_id}
                         aria-expanded="false"
-                      />
-                      <ul className="dropdown-menu">
-                        {state === State.BackLog ? (
-                          <li>
-                            <a className="dropdown-item">
-                              <button
-                                className="btn btn-outline-info"
-                                onClick={() => startTask(task_id)}
-                              >
-                                Start Task
-                              </button>
-                            </a>
-                          </li>
-                        ) : state === State.OnGoing ? (
-                          <li>
-                            <a className="dropdown-item">
-                              <button
-                                className="btn btn-outline-success"
-                                onClick={() => markDone(task_id)}
-                              >
-                                Mark Done
-                              </button>
-                            </a>
-                          </li>
-                        ) : null}
+                      >
+                        Desc
+                      </button>
 
-                        <li>
-                          <a className="dropdown-item">
-                            <button
-                              className="btn btn-outline-danger"
-                              onClick={() => deleteTask(task_id)}
-                            >
-                              Delete Task
-                            </button>
-                          </a>
-                        </li>
-                      </ul>
+                      {author ? (
+                        <>
+                          <button
+                            className="btn btn-secondary dropdown-toggle"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                          />
+                          <ul className="dropdown-menu">
+                            {state === State.BackLog ? (
+                              <li>
+                                <a className="dropdown-item">
+                                  <button
+                                    className="btn btn-outline-info"
+                                    onClick={() => startTask(task_id)}
+                                  >
+                                    Start Task
+                                  </button>
+                                </a>
+                              </li>
+                            ) : state === State.OnGoing ? (
+                              <li>
+                                <a className="dropdown-item">
+                                  <button
+                                    className="btn btn-outline-success"
+                                    onClick={() => markDone(task_id)}
+                                  >
+                                    Mark Done
+                                  </button>
+                                </a>
+                              </li>
+                            ) : null}
+
+                            <li>
+                              <a className="dropdown-item">
+                                <button
+                                  className="btn btn-outline-danger"
+                                  onClick={() => deleteTask(task_id)}
+                                >
+                                  Delete Task
+                                </button>
+                              </a>
+                            </li>
+                          </ul>
+                        </>
+                      ) : null}
                     </div>
                   </div>
                 </div>
