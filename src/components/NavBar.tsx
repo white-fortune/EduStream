@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function NavBar() {
   let [current, setCurrent] = useState("");
+  let [regloginShow, setRegLoginShow] = useState<boolean>(true);
 
   let navigate = useNavigate();
   function handleNav(to: string) {
@@ -37,28 +38,32 @@ export default function NavBar() {
                 Profile
               </a>
             </li>
-            <li className="nav-item">
-              <a
-                className={
-                  current === "login" ? "nav-link active" : "nav-link"
-                }
-                href="#"
-                onClick={() => handleNav("login")}
-              >
-                Login
-              </a>
-            </li>
-            <li className="nav-item">
-              <a
-                className={
-                  current === "register" ? "nav-link active" : "nav-link"
-                }
-                href="#"
-                onClick={() => handleNav("register")}
-              >
-                Register
-              </a>
-            </li>
+            {regloginShow ? (
+              <>
+                <li className="nav-item">
+                  <a
+                    className={
+                      current === "login" ? "nav-link active" : "nav-link"
+                    }
+                    href="#"
+                    onClick={() => handleNav("login")}
+                  >
+                    Login
+                  </a>
+                </li>
+                <li className="nav-item">
+                  <a
+                    className={
+                      current === "register" ? "nav-link active" : "nav-link"
+                    }
+                    href="#"
+                    onClick={() => handleNav("register")}
+                  >
+                    Register
+                  </a>
+                </li>
+              </>
+            ) : null}
           </ul>
         </div>
       </div>

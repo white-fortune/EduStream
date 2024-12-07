@@ -3,19 +3,17 @@ import { IStream } from "../structures/types";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-
 export default function Profile() {
   const [profile, setProfile] = useState<{
     display_name: string;
     email: string;
     owned_group: [];
     followed_group: [];
-  }>({display_name: "", email: "", owned_group: [], followed_group: []});
+  }>({ display_name: "", email: "", owned_group: [], followed_group: [] });
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log(`Second`)
     fetch("http://localhost:2000/api/session", {
       credentials: "include",
     })
@@ -26,7 +24,6 @@ export default function Profile() {
           : fetch("http://localhost:2000/profile", { credentials: "include" })
               .then((response) => response.json())
               .then((data) => {
-                // console.log(data)
                 setProfile(data);
               });
       });
@@ -77,8 +74,9 @@ export default function Profile() {
         </li>
       </ul>
 
-      {viewStream == "owned"
-        ? profile.owned_group.map(
+      {viewStream == "owned" ? (
+        profile.owned_group.length != 0 ? (
+          profile.owned_group.map(
             ({
               stream_id,
               author,
@@ -98,27 +96,26 @@ export default function Profile() {
               );
             }
           )
-        : profile.followed_group.map(
-            ({
-              stream_id,
-              author,
-              name,
-              description,
-              stream_type,
-            }: IStream) => {
-              return (
-                <StreamElement
-                  stream_id={stream_id}
-                  author={author}
-                  description={description}
-                  name={name}
-                  stream_type={stream_type}
-                  key={stream_id}
-                />
-              );
-            }
-          )}
-      {}
+        ) : (
+          <h1>Don't you study??</h1>
+        )
+      ) : profile.owned_group.length != 0 ? (
+        profile.followed_group.map(
+          ({ stream_id, author, name, description, stream_type }: IStream) => {
+            return (
+              <StreamElement
+                stream_id={stream_id}
+                author={author}
+                description={description}
+                name={name}
+                stream_type={stream_type}
+                key={stream_id}
+              />
+            );
+          }
+        )
+      ) : <h1>Follow some, people aren't that bad!</h1>
+      }
     </>
   );
 }

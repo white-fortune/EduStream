@@ -5,16 +5,18 @@ import multer from 'multer'
 import session from 'express-session'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import MongoStore from 'connect-mongo'
 
 import userModel from './schemas/users.js'
 import streamModel from './schemas/streams.js'
 import taskModel from './schemas/tasks.js'
 
-mongoose.connect("mongodb://localhost:27017/edustream").then(() => {
-    console.log(`Connected to database edustream`)
-})
 dotenv.config({ path: "E:/Programs/js/EduStream/server/.env" })
 
+const uri = process.env.MONGO_URI
+mongoose.connect(uri).then(() => {
+    console.log(`Connected to database edustream`)
+})
 class ManageDB {
     async registerUser(userData) {
         await userModel.create(userData)
@@ -38,7 +40,7 @@ class ManageDB {
 
     async showProfile(email) {
         let user = await userModel.findOne(
-            { email: email }, 
+            { email: email },
             { email: 1, display_name: 1, owned_group: 1, followed_group: 1 }
         ).populate([
             {
@@ -48,10 +50,6 @@ class ManageDB {
                     select: 'display_name',
                 }
             },
-            // {
-            //     path: 'followed_group',
-            //     select: 'name,author,description,stream_id'
-            // }
         ])
         return user
     }
@@ -141,10 +139,13 @@ app.use(session({
     secret: "a-secret-key",
     resave: false,
     saveUninitialized: true,
+    store: MongoStore.create({
+        mongoUrl: uri
+    }),
     cookie: {
         httpOnly: true,
         secure: false,
-        maxAge: 1000 * 60 * 60
+        maxAge: 1000 * 60 * 60 * 60
     }
 }))
 
