@@ -91,6 +91,20 @@ class TaskState {
 }
 let taskDB = new TaskState()
 
+
+class Stream {
+    async followStream(userID, stream_id) {
+        let stream = (await db.getStreamMetaData(stream_id))._id.toString()
+        await userModel.updateOne({ userID: userID }, { $push: { followed_group: stream } })
+    }
+
+    async unfollowStream(userID, stream_id) {
+        let stream = (await db.getStreamMetaData(stream_id))._id.toString()
+        await userModel.updateOne({ userID: userID }, { $pull: { followed_group: stream } })
+    }
+}
+let streamDB = new Stream()
+
 const app = express()
 const port = process.env.PORT
 
@@ -170,6 +184,20 @@ app.get("/api/task/start", async (req, res) => {
     } catch (error) {
         res.json({ ok: false })
     }
+})
+app.get("/api/stream/follow", async (req, res) => {
+    let userID = req.query.userID
+    let streamID = req.query.streamID
+
+    await streamDB.followStream(userID, streamID)
+    res.json({ ok: true })
+})
+app.get("/api/stream/unfollow", async (req, res) => {
+    let userID = req.query.userID
+    let streamID = req.query.streamID
+
+    await streamDB.followStream(userID, streamID)
+    res.json({ ok: true })
 })
 
 

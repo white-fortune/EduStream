@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Popover, OverlayTrigger } from "react-bootstrap";
 import { ITasks, State } from "../structures/types";
+import Cookies from "js-cookie";
 
 function getState(state: State) {
   switch (state) {
@@ -156,8 +157,7 @@ function AddTaskModal({
 }
 
 export default function Stream() {
-  let author: boolean = true;
-  let followed: boolean = false;
+  let author: boolean = false;
 
   let initialTasks: ITasks[] = [
     {
@@ -174,7 +174,7 @@ export default function Stream() {
   const [taskState, setTaskState] = useState("on-going");
   const [desc, setDesc] = useState("");
   const [tasks, setTasks] = useState<ITasks[]>(initialTasks);
-  const [follow, setFollow] = useState<boolean>(followed);
+  const [follow, setFollow] = useState<boolean>(false);
   const [name, setName] = useState("");
 
   useEffect(() => {
@@ -211,12 +211,25 @@ export default function Stream() {
     return title.length < 30 ? title : title.slice(0, 30) + "...";
   }
 
-  function followStream() {
-    setFollow(true);
+  let userID: string = Cookies.get("userID")!;
+  async function followStream() {
+    fetch(
+      `http://localhost:2000/api/stream/follow?userID=${userID}&streamID=${stream_id}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        data.ok ? setFollow(true) : null;
+      });
   }
 
   function unfollowStream() {
-    setFollow(false);
+    fetch(
+      `http://localhost:2000/api/stream/unfollow?userID=${userID}&streamID=${stream_id}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        data.ok ? setFollow(false) : null;
+      });
   }
 
   async function deleteTask(id: string) {

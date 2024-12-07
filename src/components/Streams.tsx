@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { StreamType, IStream } from "../structures/types";
+import { IStream } from "../structures/types";
 import StreamElement from "./common/Stream.structure";
 import Cookies from "js-cookie";
 
