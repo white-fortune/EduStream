@@ -59,10 +59,11 @@ function AddTaskModal({
     if (state === State.OnGoing) {
       if (onGoingCount === 0) {
         addTaskServer().then((task) => {
-          console.log(task);
           controlTask[1]((tasks: any) => {
             return tasks.concat(task);
           });
+          controlTitle[1]("")
+          controlDesc[1]("")
         });
       }
     } else {
@@ -70,6 +71,8 @@ function AddTaskModal({
         controlTask[1]((tasks: any) => {
           return tasks.concat(task);
         });
+        controlTitle[1]("")
+        controlDesc[1]("")
       });
     }
   }
