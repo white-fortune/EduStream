@@ -1,6 +1,6 @@
-import { useState, useEffect, createContext } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { IAlert, IStream } from "../structures/types";
+import { IStream } from "../structures/types";
 import StreamElement from "./common/Stream.structure";
 import Cookies from "js-cookie";
 import { Alert } from "./common/Alert.structure";

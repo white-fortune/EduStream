@@ -11,7 +11,7 @@ export default function Profile() {
     owned_group: [];
     followed_group: [];
   }>({ display_name: "", email: "", owned_group: [], followed_group: [] });
-  let [regloginShow, setRegLoginShow] = useContext(NavContext)!
+  let [, setRegLoginShow] = useContext(NavContext)!
 
 
   const navigate = useNavigate();
