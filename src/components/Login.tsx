@@ -2,11 +2,13 @@ import { BaseSyntheticEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Alert } from "./common/Alert.structure";
 import { IAlert } from "../structures/types";
+import { ButtonLoader } from "./common/Loader.structure";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [alert, setAlert] = useState<IAlert>({ id: "0", message: "" });
+  const [loaderShow, setLoaderShow] = useState<"block" | "none">("none");
   let navigate = useNavigate();
 
   useEffect(() => {
@@ -26,6 +28,7 @@ export default function Login() {
     userData.append("email", email);
     userData.append("password", password);
 
+    setLoaderShow("block");
     let response = await fetch("/login", {
       method: "POST",
       credentials: "include",
@@ -40,6 +43,7 @@ export default function Login() {
       : (function () {
           setPassword("");
           setEmail("");
+          setLoaderShow("none")
           setAlert({ id: crypto.randomUUID(), message: data.message });
         })();
   }
@@ -80,10 +84,15 @@ export default function Login() {
           />
           <br />
           <div className="d-grid">
+            <ButtonLoader
+              controlLoader={[loaderShow, setLoaderShow]}
+              message="Logging in..."
+            ></ButtonLoader>
             <button
               className="btn btn-success"
               type="submit"
               onClick={handleLogin}
+              style={{ display: loaderShow === "block" ? "none" : "block" }}
             >
               Login
             </button>

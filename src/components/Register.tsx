@@ -2,6 +2,7 @@ import { BaseSyntheticEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Alert } from "./common/Alert.structure";
 import { IAlert } from "../structures/types";
+import { ButtonLoader } from "./common/Loader.structure";
 
 const server = "";
 
@@ -10,6 +11,7 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [alert, setAlert] = useState<IAlert>({ id: "0", message: "" });
+  const [loaderShow, setLoaderShow] = useState<"block" | "none">("none");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,6 +32,7 @@ export default function Register() {
     userData.append("display_name", displayName);
     userData.append("password", password);
 
+    setLoaderShow("block");
     let response = await fetch(`${server}/register`, {
       method: "POST",
       body: userData,
@@ -40,6 +43,7 @@ export default function Register() {
       ? navigate("/login")
       : (function () {
           setPassword("");
+          setLoaderShow("none")
           setAlert({ id: crypto.randomUUID(), message: data.message });
         })();
   }
@@ -88,7 +92,15 @@ export default function Register() {
           />
           <br />
           <div className="d-grid">
-            <button className="btn btn-success" onClick={handleRegister}>
+            <ButtonLoader
+              controlLoader={[loaderShow, setLoaderShow]}
+              message="Registering..."
+            />
+            <button
+              className="btn btn-success"
+              onClick={handleRegister}
+              style={{ display: loaderShow === "block" ? "none" : "block" }}
+            >
               Register
             </button>
           </div>

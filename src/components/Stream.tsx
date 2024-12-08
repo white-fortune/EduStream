@@ -1,7 +1,9 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Popover, OverlayTrigger } from "react-bootstrap";
-import { ITasks, State } from "../structures/types";
+import { IAlert, ITasks, State } from "../structures/types";
+import { Alert } from "./common/Alert.structure";
+import Loader from "./common/Loader.structure";
 import Cookies from "js-cookie";
 
 function getState(state: State) {
@@ -32,6 +34,7 @@ function AddTaskModal({
   streamName: string | undefined;
 }) {
   let { stream_id } = useParams<{ stream_id: string }>();
+  let [alert, setAlert] = useState<IAlert>({ id: "0", message: "" });
 
   async function addTask(title: any, state: any) {
     if (title === "") return;
@@ -59,20 +62,22 @@ function AddTaskModal({
     if (state === State.OnGoing) {
       if (onGoingCount === 0) {
         addTaskServer().then((task) => {
+          setAlert({ id: crypto.randomUUID(), message: "Task added" });
           controlTask[1]((tasks: any) => {
             return tasks.concat(task);
           });
-          controlTitle[1]("")
-          controlDesc[1]("")
+          controlTitle[1]("");
+          controlDesc[1]("");
         });
       }
     } else {
       addTaskServer().then((task) => {
+        setAlert({ id: crypto.randomUUID(), message: "Task added" });
         controlTask[1]((tasks: any) => {
           return tasks.concat(task);
         });
-        controlTitle[1]("")
-        controlDesc[1]("")
+        controlTitle[1]("");
+        controlDesc[1]("");
       });
     }
   }
@@ -87,7 +92,6 @@ function AddTaskModal({
       >
         Add Task
       </button>
-
       <div
         className="modal fade"
         id="exampleModal"
@@ -106,6 +110,9 @@ function AddTaskModal({
                 aria-label="Close"
               ></button>
             </div>
+            {alert.id !== "0" ? (
+              <Alert controlAlert={[alert, setAlert]} key={alert.id} />
+            ) : null}
             <div className="modal-body">
               <label className="lead">Task Title:</label>
               <input
@@ -178,6 +185,7 @@ export default function Stream() {
   const [follow, setFollow] = useState<boolean>(false);
   const [author, setAuthor] = useState<boolean>(false);
   const [name, setName] = useState("");
+  const [loaderShow, setLoaderShow] = useState<"block" | "none">("none");
   const userID: string = Cookies.get("userID")!;
 
   useEffect(() => {
@@ -187,9 +195,11 @@ export default function Stream() {
         setName(data.name);
       });
 
+    setLoaderShow("block");
     fetch(`/api/getTasks?streamID=${stream_id}`)
       .then((response) => response.json())
       .then((data) => {
+        setLoaderShow("none");
         setTasks((prev_tasks) => {
           return prev_tasks?.concat(data);
         });
@@ -313,7 +323,13 @@ export default function Stream() {
           </div>
         )}
       </div>
-      {tasks.length == 1 ? <h1>No tasks are added yet!</h1> : null}
+      <Loader
+        controlLoader={[loaderShow, setLoaderShow]}
+        message="Getting tasks list..."
+      />
+      {tasks.length == 1 && loaderShow !== "block" ? (
+        <h1>No tasks are added yet!</h1>
+      ) : null}
       <div className="list-group">
         {tasks
           .filter((task) => task.task_id !== "0")

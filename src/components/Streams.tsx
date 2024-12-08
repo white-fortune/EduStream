@@ -4,6 +4,7 @@ import { IStream } from "../structures/types";
 import StreamElement from "./common/Stream.structure";
 import Cookies from "js-cookie";
 import { Alert } from "./common/Alert.structure";
+import Loader from "./common/Loader.structure";
 
 // const SearchPanel = ({
 //   streamName,
@@ -176,10 +177,11 @@ export default function Streams() {
   const [streamType, setStreamType] = useState("private");
   const [streams, setStreams] = useState(streamList);
   const [alert, setAlert] = useState({ id: "0", message: "" });
-
+  const [loaderShow, setLoaderShow] = useState<"block" | "none">("none");
   const navigate = useNavigate();
 
   useEffect(() => {
+    setLoaderShow("block");
     fetch("/api/session", {
       credentials: "include",
     })
@@ -190,6 +192,7 @@ export default function Streams() {
           : fetch("/api/getStreams")
               .then((response) => response.json())
               .then(({ streams }) => {
+                setLoaderShow("none");
                 setStreams((prev_streams) => {
                   return prev_streams.concat(streams);
                 });
@@ -215,6 +218,10 @@ export default function Streams() {
       >
         Create Stream
       </button>
+      <Loader
+        controlLoader={[loaderShow, setLoaderShow]}
+        message="Fethcing streams for you...just wait a bit!"
+      />
       <CreateGroupModal
         streamTitle={[streamTitle, setStreamTitle]}
         streamDesc={[streamDesc, setStreamDesc]}

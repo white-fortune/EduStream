@@ -3,6 +3,7 @@ import { IStream } from "../structures/types";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavContext } from "../App";
+import Loader from "./common/Loader.structure";
 
 export default function Profile() {
   const [profile, setProfile] = useState<{
@@ -11,11 +12,12 @@ export default function Profile() {
     owned_group: [];
     followed_group: [];
   }>({ display_name: "", email: "", owned_group: [], followed_group: [] });
-  let [, setRegLoginShow] = useContext(NavContext)!;
-
+  const [, setRegLoginShow] = useContext(NavContext)!;
+  const [loaderShow, setLoaderShow] = useState<"block" | "none">("none");
   const navigate = useNavigate();
 
   useEffect(() => {
+    setLoaderShow("block");
     fetch("/api/session", {
       credentials: "include",
     })
@@ -26,11 +28,12 @@ export default function Profile() {
           : fetch("/profile", { credentials: "include" })
               .then((response) => response.json())
               .then((data) => {
+                setLoaderShow("none");
                 setProfile(data);
                 setRegLoginShow(false);
               });
       });
-  }, []);
+  }, [navigate]);
 
   let display_name: string = profile!.display_name;
   let email: string = profile!.email;
@@ -126,7 +129,15 @@ export default function Profile() {
             }
           )
         ) : (
-          <h1>Don't you study??</h1>
+          <>
+            <Loader
+              controlLoader={[loaderShow, setLoaderShow]}
+              message="Getting Streams"
+            />
+            <h1 style={{ display: loaderShow === "block" ? "none" : "block" }}>
+              Don't you study??
+            </h1>
+          </>
         )
       ) : profile.followed_group.length !== 0 ? (
         profile.followed_group.map(
@@ -144,7 +155,15 @@ export default function Profile() {
           }
         )
       ) : (
-        <h1>Follow some, people aren't that bad!</h1>
+        <>
+          <Loader
+            controlLoader={[loaderShow, setLoaderShow]}
+            message="Getting Streams"
+          />
+          <h1 style={{ display: loaderShow === "block" ? "none" : "block" }}>
+            Follow some, people aren't that bad!
+          </h1>
+        </>
       )}
     </>
   );
