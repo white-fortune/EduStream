@@ -14,6 +14,8 @@ export default function Profile() {
   }>({ display_name: "", email: "", owned_group: [], followed_group: [] });
   const [, setRegLoginShow] = useContext(NavContext)!;
   const [loaderShow, setLoaderShow] = useState<"block" | "none">("none");
+  const [display_name, setDisplayName] = useState(profile.display_name)
+  const [email, setEmail] = useState(profile.email)
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,13 +32,12 @@ export default function Profile() {
               .then((data) => {
                 setLoaderShow("none");
                 setProfile(data);
+                setDisplayName(data.display_name)
+                setEmail(data.email)
                 setRegLoginShow(false);
               });
       });
-  }, [navigate]);
-
-  let display_name: string = profile!.display_name;
-  let email: string = profile!.email;
+  }, []);
 
   const [viewStream, setViewStream] = useState("owned");
 
