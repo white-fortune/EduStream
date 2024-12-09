@@ -155,7 +155,6 @@ app.use(session({
         ttl: 60 * 60 * 48
     }),
     cookie: {
-        httpOnly: true,
         secure: false,
         maxAge: 1000 * 60 * 60 * 48
     }
@@ -291,7 +290,10 @@ app.post("/login", multer().none(), async (req, res) => {
             }
             let userID = await db.varifyLogin(userData)
             req.session.email = userData.email
-            res.cookie('userID', userID)
+            res.cookie('userID', userID, {
+                secure: false,
+                maxAge: 1000 * 60 * 60 * 48
+            })
 
             res.json({ auth: true })
         } catch (error) {
